@@ -35,7 +35,7 @@ const createInvoice = async (req, res) => {
 
 const getInvoices = async (req, res) => {
     try {
-        const invoices = await Invoice.find().populate('course');
+        const invoices = await Invoice.find()
         res.json(invoices);
     } catch (err) {
         res.status(500).json({ message: err.message });
