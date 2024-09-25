@@ -44,11 +44,11 @@ const getInvoices = async (req, res) => {
 
 const getInvoiceById = async (req, res) => {
     try {
-        const invoice = await Invoice.findById(req.params.id).populate('course');
+        const invoice = await Invoice.findById(req.params.id);
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
-        res.json(invoice);
+        res.status(200).json(invoice);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
