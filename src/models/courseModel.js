@@ -4,6 +4,7 @@ const courseSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
+        unique: true
     },
     description: {
         type: String,
@@ -15,6 +16,7 @@ const courseSchema = new mongoose.Schema({
     route: {
         type: String,
         required: true,
+        unique: true
     }
 });
 

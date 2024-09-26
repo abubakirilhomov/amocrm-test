@@ -14,10 +14,6 @@ const invoiceSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    email: {
-        type: String,
-        required: true,
-    },
     invoiceNumber: {
         type: Number,
         unique: true,
@@ -28,12 +24,10 @@ const invoiceSchema = new mongoose.Schema({
         enum: ['НЕ ОПЛАЧЕН', 'ВЫСТАВЛЕНО', 'ОПЛАЧЕН'],
         default: 'НЕ ОПЛАЧЕН',
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-        index: { expires: '3d' },
-    },
-});
+},
+    {
+        timestamps: true
+    });
 
 invoiceSchema.pre('save', async function (next) {
     const invoice = this;
