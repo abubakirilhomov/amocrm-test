@@ -16,7 +16,7 @@ const courseSchema = new mongoose.Schema({
     route: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     }
 });
 
