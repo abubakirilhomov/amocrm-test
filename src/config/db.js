@@ -3,7 +3,7 @@ require('dotenv').config()
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://2ilhomovabubakir2:abubakir@paymentdashboard.rrwaw.mongodb.net/?retryWrites=true&w=majority&appName=paymentDashboard")
+        const conn = await mongoose.connect(process.env.MONGO_URI || "mongodb+srv://2ilhomovabubakir2:abubakir@paymentdashboard.rrwaw.mongodb.net/?retryWrites=true&w=majority&appName=paymentDashboard")
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         console.error(`Error: ${error.message}`);
@@ -11,4 +11,4 @@ const connectDB = async () => {
     }
 };
 
-module.exports = connectDB;
+module.exports = connectDBж
