@@ -2,9 +2,11 @@ const express = require('express');
 const connectDB = require('./database/config');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const bodyParser = require('body-parser')
 const courseRoutes = require('./routes/courseRoutes')
 const invoiceRoutes = require('./routes/invoiceRoutes')
 const counterRoutes = require('./routes/counterRoutes');
+const checkPersormRoute = require('./routes/checkPerformRoute')
 const checkCourseRoutes = require('./routes/checkCourseRoutes')
 dotenv.config();
 
@@ -12,7 +14,8 @@ connectDB();
 
 const app = express();
 app.use(cors({ origin: '*' }));
-app.use(express.json());
+app.use(bodyParser.json());
+app.use('/', checkPersormRoute)
 app.use('/api/v1', courseRoutes)
 app.use('/api/v1', invoiceRoutes)
 app.use('/api/v1/counter', counterRoutes)
