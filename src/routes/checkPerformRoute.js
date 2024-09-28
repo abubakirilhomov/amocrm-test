@@ -3,7 +3,7 @@ const Courses = require('../models/courseModel');
 const Order = require('../models/ordersModel');
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/check-perform-transaction', async (req, res) => {
     const { amount, account, id } = req.body.params;
 
     const course = await getCourseById(account.course_id);
