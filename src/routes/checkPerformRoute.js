@@ -1,6 +1,6 @@
 const express = require('express');
 const Courses = require('../models/courseModel');
-const Order = require('../models/orderModel');
+const Order = require('../models/ordersModel');
 const router = express.Router();
 
 router.post('/check-perform-transaction', async (req, res) => {
