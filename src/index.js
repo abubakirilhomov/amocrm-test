@@ -14,7 +14,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors({ origin: '*' }));
+app.use(cors());
 app.use(bodyParser.json());
 app.use('/', checkPersormRoute)
 app.use('/', performTransaction)
