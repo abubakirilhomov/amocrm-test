@@ -23,6 +23,7 @@ app.use('/api/v1', invoiceRoutes)
 app.use('/api/v1/counter', counterRoutes)
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/transactions', require('./routes/transRoutes'));
+app.use('/api/courses', checkCourseRoutes);
 
 
 const PORT = process.env.PORT || 5000;
