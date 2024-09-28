@@ -8,6 +8,7 @@ const invoiceRoutes = require('./routes/invoiceRoutes')
 const counterRoutes = require('./routes/counterRoutes');
 const checkPersormRoute = require('./routes/checkPerformRoute')
 const performTransaction = require('./routes/performTransaction')
+const paymentRoutes = require('./routes/paymentRoutes')
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use('/', checkPersormRoute)
 app.use('/', performTransaction)
+app.use('/', paymentRoutes)
 app.use('/api/v1', courseRoutes)
 app.use('/api/v1', invoiceRoutes)
 app.use('/api/v1/counter', counterRoutes)
