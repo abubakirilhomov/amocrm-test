@@ -7,6 +7,7 @@ const courseRoutes = require('./routes/courseRoutes')
 const invoiceRoutes = require('./routes/invoiceRoutes')
 const counterRoutes = require('./routes/counterRoutes');
 const checkPersormRoute = require('./routes/checkPerformRoute')
+const performTransaction = require('./routes/performTransaction')
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const app = express();
 app.use(cors({ origin: '*' }));
 app.use(bodyParser.json());
 app.use('/', checkPersormRoute)
+app.use('/', performTransaction)
 app.use('/api/v1', courseRoutes)
 app.use('/api/v1', invoiceRoutes)
 app.use('/api/v1/counter', counterRoutes)
