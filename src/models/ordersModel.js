@@ -8,7 +8,7 @@ const ordersSchema = new mongoose.Schema({
     },
     user_id: {
         type: String,   
-        required: true
+        required: false
     },
     amount: {
         type: Number,
