@@ -2,7 +2,7 @@ const express = require('express');
 const Invoices = require('../models/invoiceModel');
 const router = express.Router();
 
-router.post('/check-perform-transaction', async (req, res) => {
+router.post('/perform-transaction', async (req, res) => {
     const { transaction_id, status } = req.body.params;
 
     switch (status) {
