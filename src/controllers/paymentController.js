@@ -1,13 +1,31 @@
 const Courses = require('../models/courseModel');
 const Invoices = require('../models/invoiceModel');
 
+// Функция для получения курса по ID
 async function getCourseById(id) {
     return await Courses.findById(id);
 }
 
-
 const checkPerform = async (req, res) => {
-    const { amount, account } = req.body.params;
+    const { amount, account } = req.body.params || {};
+
+    console.log('Received request in checkPerform:', req.body);
+
+    if (!account || !account.course_id) {
+        console.error('Account или account.course_id отсутствует в запросе:', req.body);
+        return res.json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31050,
+                message: {
+                    ru: 'Параметры запроса неверны',
+                    uz: 'So‘rov parametrlari noto‘g‘ri',
+                    en: 'Request parameters are invalid'
+                }
+            }
+        });
+    }
 
     try {
         const course = await getCourseById(account.course_id);
@@ -18,7 +36,11 @@ const checkPerform = async (req, res) => {
                 id: req.body.id,
                 error: {
                     code: -31050,
-                    message: { ru: 'Курс не найден', uz: 'Kurs topilmadi', en: 'Course not found' }
+                    message: {
+                        ru: 'Курс не найден',
+                        uz: 'Kurs topilmadi',
+                        en: 'Course not found'
+                    }
                 }
             });
         }
@@ -29,7 +51,11 @@ const checkPerform = async (req, res) => {
                 id: req.body.id,
                 error: {
                     code: -31001,
-                    message: { ru: 'Неверная сумма', uz: 'Noto‘g‘ri summa', en: 'Incorrect amount' }
+                    message: {
+                        ru: 'Неверная сумма',
+                        uz: 'Noto‘g‘ri summa',
+                        en: 'Incorrect amount'
+                    }
                 }
             });
         }
@@ -40,47 +66,78 @@ const checkPerform = async (req, res) => {
             result: { allow: true }
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in checkPerform:', error);
         res.status(500).json({
             jsonrpc: '2.0',
-            id: req.body.id,
+            id: req.body.id || null,
             error: {
                 code: -32000,
-                message: { ru: 'Внутренняя ошибка сервера', uz: 'Ichki server xatosi', en: 'Internal server error' }
+                message: {
+                    ru: 'Внутренняя ошибка сервера',
+                    uz: 'Ichki server xatosi',
+                    en: 'Internal server error'
+                }
             }
         });
     }
 };
 
-
 const createTransaction = async (req, res) => {
-    const { course_id, amount } = req.body;
+    const { account, amount } = req.body.params || {};
+
+    console.log('Received request in createTransaction:', req.body);
+
+    if (!account || !account.course_id) {
+        return res.json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31050,
+                message: {
+                    ru: 'Параметры запроса неверны',
+                    uz: 'So‘rov parametrlari noto‘g‘ri',
+                    en: 'Request parameters are invalid'
+                }
+            }
+        });
+    }
 
     try {
-        const course = await Courses.findById(course_id);
+        const course = await Courses.findById(account.course_id);
 
         if (!course) {
-            return res.status(404).json({
+            return res.json({
                 jsonrpc: '2.0',
+                id: req.body.id,
                 error: {
                     code: -31050,
-                    message: { ru: 'Курс не найден', uz: 'Kurs topilmadi', en: 'Course not found' }
+                    message: {
+                        ru: 'Курс не найден',
+                        uz: 'Kurs topilmadi',
+                        en: 'Course not found'
+                    }
                 }
             });
         }
 
         if (course.price !== amount) {
-            return res.status(400).json({
+            return res.json({
                 jsonrpc: '2.0',
+                id: req.body.id,
                 error: {
                     code: -31001,
-                    message: { ru: 'Неверная сумма', uz: 'Noto‘g‘ri summa', en: 'Incorrect amount' }
+                    message: {
+                        ru: 'Неверная сумма',
+                        uz: 'Noto‘g‘ri summa',
+                        en: 'Incorrect amount'
+                    }
                 }
             });
         }
 
         const transactionId = `txn_${new Date().getTime()}`;
         const createTime = Date.now();
+
 
         res.json({
             jsonrpc: '2.0',
@@ -92,76 +149,95 @@ const createTransaction = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
-
-const performTransaction = async (req, res) => {
-    try {
-        // Извлекаем 'id' и 'status' из запроса
-        const { id, status } = req.body.params;
-
-        if (!id) {
-            throw new Error("Параметр 'id' отсутствует в запросе.");
-        }
-
-        if (status === undefined) {
-            throw new Error("Параметр 'status' отсутствует в запросе.");
-        }
-
-        switch (status) {
-            case 1:
-                console.log(`Transaction ${id} is created.`);
-                // Логика для создания транзакции
-                break;
-
-            case 2:
-                console.log(`Transaction ${id} is completed.`);
-                await completeTransaction(id);
-                break;
-
-            case -1:
-            case -2:
-                console.log(`Transaction ${id} is canceled.`);
-                await cancelTransaction(id);
-                break;
-
-            default:
-                return res.json({
-                    jsonrpc: '2.0',
-                    id: req.body.id,
-                    error: {
-                        code: -31008,
-                        message: { ru: 'Неверный статус транзакции', uz: 'Noto‘g‘ri tranzaksiya holati', en: 'Invalid transaction status' }
-                    }
-                });
-        }
-
-        res.json({
-            jsonrpc: '2.0',
-            id: req.body.id,
-            result: { status: 'success' }
-        });
-    } catch (error) {
-        console.error('Error in performTransaction:', error);
+        console.error('Error in createTransaction:', error);
         res.status(500).json({
             jsonrpc: '2.0',
-            id: req.body.id,
+            id: req.body.id || null,
             error: {
                 code: -32000,
-                message: { ru: 'Внутренняя ошибка сервера', uz: 'Ichki server xatosi', en: 'Internal server error' }
+                message: {
+                    ru: 'Внутренняя ошибка сервера',
+                    uz: 'Ichki server xatosi',
+                    en: 'Internal server error'
+                }
             }
         });
     }
 };
 
+const performTransaction = async (req, res) => {
+    try {
+        const { id, account, amount } = req.body.params || {};
+
+        console.log('Received request in performTransaction:', req.body);
+
+        if (!id || !account || !account.course_id) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id || null,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Параметры запроса неверны',
+                        uz: 'So‘rov parametrlari noto‘g‘ri',
+                        en: 'Request parameters are invalid'
+                    }
+                }
+            });
+        }
+
+        res.json({
+            jsonrpc: '2.0',
+            id: req.body.id,
+            result: {
+                transaction: id,
+                perform_time: Date.now(),
+                state: 2 
+            }
+        });
+    } catch (error) {
+        console.error('Error in performTransaction:', error);
+        res.status(500).json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -32000,
+                message: {
+                    ru: 'Внутренняя ошибка сервера',
+                    uz: 'Ichki server xatosi',
+                    en: 'Internal server error'
+                }
+            }
+        });
+    }
+};
+
+async function completeTransaction(transactionId) {
+    const invoice = await Invoices.findOneAndUpdate(
+        { invoiceNumber: transactionId },
+        { status: 'ОПЛАЧЕНО' },
+        { new: true }
+    );
+
+    if (!invoice) {
+        throw new Error('Invoice not found');
+    }
+
+    return invoice;
+}
 
 async function cancelTransaction(transactionId) {
-    const course = await Invoices.findOneAndUpdate(
+    const invoice = await Invoices.findOneAndUpdate(
+        { invoiceNumber: transactionId },
         { status: 'НЕ ОПЛАЧЕНО' },
         { new: true }
     );
-    return course;
+
+    if (!invoice) {
+        throw new Error('Invoice not found');
+    }
+
+    return invoice;
 }
 
-module.exports = { checkPerform, createTransaction, performTransaction }
+module.exports = { checkPerform, createTransaction, performTransaction };
