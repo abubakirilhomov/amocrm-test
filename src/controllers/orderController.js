@@ -21,17 +21,15 @@ const getOrderById = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    const { course_id, user_id, amount, status } = req.body;
+    const { course_id, user_id } = req.body;
 
-    if (!course_id || !user_id || !amount || !status) {
+    if (!course_id || !user_id) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     const newOrder = await Order.create({
       course_id: course_id,
       user_id: user_id,
-      amount: amount,
-      status: status,
     });
 
     res.status(201).json({ message: "Order created", data: newOrder });

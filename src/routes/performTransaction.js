@@ -3,7 +3,7 @@ const Invoices = require('../models/invoiceModel');
 const router = express.Router();
 
 router.post('/perform-transaction', async (req, res) => {
-    const { transaction_id, status } = req.body.params;
+    const { transaction_id, status } = req.body;
 
     switch (status) {
         case 1:

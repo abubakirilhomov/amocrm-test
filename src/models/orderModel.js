@@ -5,22 +5,13 @@ const ordersSchema = new mongoose.Schema(
     course_id: {
       type: mongoose.Types.ObjectId,
       ref: "Course",
-      required: true,
+      required: false,
     },
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "Invoice",
-      required: true,
-    },
-    amount: {
-      type: Number,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["ВЫСТАВЛЕНО", "ОПЛАЧЕНО", "НЕ ОПЛАЧЕНО"],
-      default: "ВЫСТАВЛЕНО",
-    },
+      required: false,
+    }
   },
   {
     timestamps: true,
