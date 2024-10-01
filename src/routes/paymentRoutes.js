@@ -1,9 +1,7 @@
 const express = require('express');
-const { checkPerform, createTransaction, performTransaction } = require('../controllers/paymentController');
+const { handlePaymeRequest } = require('../controllers/paymentController');
 const router = express.Router();
 
-router.post('/check-perform-transaction', checkPerform);
-router.post('/create-transaction', createTransaction);
-router.post('/perform-transaction', performTransaction);
+router.post('/', handlePaymeRequest);
 
 module.exports = router;

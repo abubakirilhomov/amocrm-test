@@ -1,11 +1,43 @@
+// paymentController.js
+
 const Courses = require('../models/courseModel');
 const Invoices = require('../models/invoiceModel');
+const Orders = require('../models/orderModel');
 
-// Функция для получения курса по ID
-async function getCourseById(id) {
-    return await Courses.findById(id);
-}
+const handlePaymeRequest = async (req, res) => {
+    const { method } = req.body;
 
+    switch (method) {
+        case 'CheckPerformTransaction':
+            await checkPerform(req, res);
+            break;
+        case 'CreateTransaction':
+            await createTransaction(req, res);
+            break;
+        case 'PerformTransaction':
+            await performTransaction(req, res);
+            break;
+        case 'CheckTransaction':
+            await checkTransaction(req, res);
+            break;
+        // Добавьте обработку других методов при необходимости
+        default:
+            res.json({
+                jsonrpc: '2.0',
+                id: req.body.id || null,
+                error: {
+                    code: -32601,
+                    message: {
+                        ru: 'Метод не найден',
+                        uz: 'Usul topilmadi',
+                        en: 'Method not found'
+                    }
+                }
+            });
+    }
+};
+
+// Функция для проверки возможности выполнения транзакции
 const checkPerform = async (req, res) => {
     const { amount, account } = req.body.params || {};
 
@@ -13,81 +45,6 @@ const checkPerform = async (req, res) => {
 
     if (!account || !account.course_id) {
         console.error('Account или account.course_id отсутствует в запросе:', req.body);
-        return res.json({
-            jsonrpc: '2.0',
-            id: req.body.id || null,
-            error: {
-                code: -31050,
-                message: {
-                    ru: 'Параметры запроса неверны',
-                    uz: 'So‘rov parametrlari noto‘g‘ri',
-                    en: 'Request parameters are invalid'
-                }
-            }
-        });
-    }
-
-    try {
-        const course = await getCourseById(account.course_id);
-
-        if (!course) {
-            return res.json({
-                jsonrpc: '2.0',
-                id: req.body.id,
-                error: {
-                    code: -31050,
-                    message: {
-                        ru: 'Курс не найден',
-                        uz: 'Kurs topilmadi',
-                        en: 'Course not found'
-                    }
-                }
-            });
-        }
-
-        if (course.price !== amount) {
-            return res.json({
-                jsonrpc: '2.0',
-                id: req.body.id,
-                error: {
-                    code: -31001,
-                    message: {
-                        ru: 'Неверная сумма',
-                        uz: 'Noto‘g‘ri summa',
-                        en: 'Incorrect amount'
-                    }
-                }
-            });
-        }
-
-        res.json({
-            jsonrpc: '2.0',
-            id: req.body.id,
-            result: { allow: true }
-        });
-    } catch (error) {
-        console.error('Error in checkPerform:', error);
-        res.status(500).json({
-            jsonrpc: '2.0',
-            id: req.body.id || null,
-            error: {
-                code: -32000,
-                message: {
-                    ru: 'Внутренняя ошибка сервера',
-                    uz: 'Ichki server xatosi',
-                    en: 'Internal server error'
-                }
-            }
-        });
-    }
-};
-
-const createTransaction = async (req, res) => {
-    const { account, amount } = req.body.params || {};
-
-    console.log('Received request in createTransaction:', req.body);
-
-    if (!account || !account.course_id) {
         return res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
@@ -135,17 +92,84 @@ const createTransaction = async (req, res) => {
             });
         }
 
-        const transactionId = `txn_${new Date().getTime()}`;
-        const createTime = Date.now();
+        res.json({
+            jsonrpc: '2.0',
+            id: req.body.id,
+            result: { allow: true }
+        });
+    } catch (error) {
+        console.error('Error in checkPerform:', error);
+        res.status(500).json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31008,
+                message: {
+                    ru: 'Ошибка на стороне сервера',
+                    uz: 'Server tomonda xatolik',
+                    en: 'Server error'
+                }
+            }
+        });
+    }
+};
 
+const createTransaction = async (req, res) => {
+    const { id, time, amount, account } = req.body.params || {};
+
+    console.log('Received request in createTransaction:', req.body);
+
+    if (!account || !account.course_id || !id || !time) {
+        console.error('Необходимые параметры отсутствуют в запросе:', req.body);
+        return res.json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31050,
+                message: {
+                    ru: 'Параметры запроса неверны',
+                    uz: 'So‘rov parametrlari noto‘g‘ri',
+                    en: 'Request parameters are invalid'
+                }
+            }
+        });
+    }
+
+    try {
+        // Проверьте, существует ли транзакция с таким ID
+        let transaction = await Invoices.findOne({ transactionId: id });
+
+        if (transaction) {
+            // Если транзакция уже существует, верните её статус
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                result: {
+                    create_time: transaction.create_time,
+                    transaction: transaction.transactionId,
+                    state: transaction.state
+                }
+            });
+        }
+
+        // Создайте новую транзакцию
+        transaction = new Invoices({
+            transactionId: id,
+            create_time: time,
+            amount: amount,
+            state: 1, // Статус "Создана"
+            course_id: account.course_id
+        });
+
+        await transaction.save();
 
         res.json({
             jsonrpc: '2.0',
             id: req.body.id,
             result: {
-                create_time: createTime,
-                transaction: transactionId,
-                state: 1
+                create_time: transaction.create_time,
+                transaction: transaction.transactionId,
+                state: transaction.state
             }
         });
     } catch (error) {
@@ -154,33 +178,131 @@ const createTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -32000,
+                code: -31008,
                 message: {
-                    ru: 'Внутренняя ошибка сервера',
-                    uz: 'Ichki server xatosi',
-                    en: 'Internal server error'
+                    ru: 'Ошибка на стороне сервера',
+                    uz: 'Server tomonda xatolik',
+                    en: 'Server error'
                 }
             }
         });
     }
 };
 
+// Функция для выполнения транзакции
 const performTransaction = async (req, res) => {
+    const { id } = req.body.params || {};
+
+    console.log('Received request in performTransaction:', req.body);
+
+    if (!id) {
+        return res.json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31050,
+                message: {
+                    ru: 'Идентификатор транзакции отсутствует',
+                    uz: 'Tranzaksiya identifikatori mavjud emas',
+                    en: 'Transaction ID is missing'
+                }
+            }
+        });
+    }
+
     try {
-        const { id, account, amount } = req.body.params || {};
+        let transaction = await Invoices.findOne({ transactionId: id });
 
-        console.log('Received request in performTransaction:', req.body);
-
-        if (!id || !account || !account.course_id) {
+        if (!transaction) {
             return res.json({
                 jsonrpc: '2.0',
-                id: req.body.id || null,
+                id: req.body.id,
                 error: {
-                    code: -31050,
+                    code: -31003,
                     message: {
-                        ru: 'Параметры запроса неверны',
-                        uz: 'So‘rov parametrlari noto‘g‘ri',
-                        en: 'Request parameters are invalid'
+                        ru: 'Транзакция не найдена',
+                        uz: 'Tranzaksiya topilmadi',
+                        en: 'Transaction not found'
+                    }
+                }
+            });
+        }
+
+        if (transaction.state === 2) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                result: {
+                    transaction: transaction.transactionId,
+                    perform_time: transaction.perform_time,
+                    state: transaction.state
+                }
+            });
+        }
+
+        transaction.state = 2;
+        transaction.perform_time = Date.now();
+        await transaction.save();
+
+        res.json({
+            jsonrpc: '2.0',
+            id: req.body.id,
+            result: {
+                transaction: transaction.transactionId,
+                perform_time: transaction.perform_time,
+                state: transaction.state
+            }
+        });
+    } catch (error) {
+        console.error('Error in performTransaction:', error);
+        res.status(500).json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31008,
+                message: {
+                    ru: 'Ошибка на стороне сервера',
+                    uz: 'Server tomonda xatolik',
+                    en: 'Server error'
+                }
+            }
+        });
+    }
+};
+
+const checkTransaction = async (req, res) => {
+    const { id } = req.body.params || {};
+
+    console.log('Received request in checkTransaction:', req.body);
+
+    if (!id) {
+        return res.json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31050,
+                message: {
+                    ru: 'Идентификатор транзакции отсутствует',
+                    uz: 'Tranzaksiya identifikatori mavjud emas',
+                    en: 'Transaction ID is missing'
+                }
+            }
+        });
+    }
+
+    try {
+        let transaction = await Invoices.findOne({ transactionId: id });
+
+        if (!transaction) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31003,
+                    message: {
+                        ru: 'Транзакция не найдена',
+                        uz: 'Tranzaksiya topilmadi',
+                        en: 'Transaction not found'
                     }
                 }
             });
@@ -190,54 +312,29 @@ const performTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id,
             result: {
-                transaction: id,
-                perform_time: Date.now(),
-                state: 2 
+                create_time: transaction.create_time,
+                perform_time: transaction.perform_time || 0,
+                cancel_time: transaction.cancel_time || 0,
+                transaction: transaction.transactionId,
+                state: transaction.state,
+                reason: transaction.reason || null
             }
         });
     } catch (error) {
-        console.error('Error in performTransaction:', error);
+        console.error('Error in checkTransaction:', error);
         res.status(500).json({
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -32000,
+                code: -31008,
                 message: {
-                    ru: 'Внутренняя ошибка сервера',
-                    uz: 'Ichki server xatosi',
-                    en: 'Internal server error'
+                    ru: 'Ошибка на стороне сервера',
+                    uz: 'Server tomonda xatolik',
+                    en: 'Server error'
                 }
             }
         });
     }
 };
 
-async function completeTransaction(transactionId) {
-    const invoice = await Invoices.findOneAndUpdate(
-        { invoiceNumber: transactionId },
-        { status: 'ОПЛАЧЕНО' },
-        { new: true }
-    );
-
-    if (!invoice) {
-        throw new Error('Invoice not found');
-    }
-
-    return invoice;
-}
-
-async function cancelTransaction(transactionId) {
-    const invoice = await Invoices.findOneAndUpdate(
-        { invoiceNumber: transactionId },
-        { status: 'НЕ ОПЛАЧЕНО' },
-        { new: true }
-    );
-
-    if (!invoice) {
-        throw new Error('Invoice not found');
-    }
-
-    return invoice;
-}
-
-module.exports = { checkPerform, createTransaction, performTransaction };
+module.exports = { handlePaymeRequest };
