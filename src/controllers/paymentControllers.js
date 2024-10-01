@@ -1,6 +1,6 @@
 const Courses = require('../models/courseModel');
 const Invoices = require('../models/invoiceModel');
-const Order = require('../models/ordersModel');
+const Order = require('../models/orderModel');
 
 const checkPerform = async (req, res) => {
     const { amount, account } = req.body.params;
