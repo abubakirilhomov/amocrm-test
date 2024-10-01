@@ -134,7 +134,6 @@ const performTransaction = async (req, res) => {
 
 async function completeTransaction(transactionId) {
     const course = await Invoices.findOneAndUpdate(
-        { invoiceNumber: transactionId },
         { status: 'ОПЛАЧЕНО' },
         { new: true }
     );
@@ -143,7 +142,6 @@ async function completeTransaction(transactionId) {
 
 async function cancelTransaction(transactionId) {
     const course = await Invoices.findOneAndUpdate(
-        { invoiceNumber: transactionId },
         { status: 'НЕ ОПЛАЧЕНО' },
         { new: true }
     );
