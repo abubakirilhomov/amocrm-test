@@ -4,6 +4,7 @@ const Order = require('../models/orderModel');
 
 const checkPerform = async (req, res) => {
     const { amount, account } = req.body.params;
+    const user_id = account.user_id; // Получите user_id из запроса
 
     try {
         const course = await getCourseById(account.course_id);
@@ -32,7 +33,7 @@ const checkPerform = async (req, res) => {
 
         const newOrder = new Order({
             course_id: account.course_id,
-            user_id: account.user_id, 
+            user_id: user_id, 
             amount: amount,
             status: 'ВЫСТАВЛЕНО'
         });
@@ -42,10 +43,10 @@ const checkPerform = async (req, res) => {
         res.json({
             jsonrpc: '2.0',
             id: req.body.id,
-            result: { allow: true } 
+            result: { allow: true }
         });
     } catch (error) {
-        console.error(error); 
+        console.error(error);
         res.status(500).json({
             jsonrpc: '2.0',
             id: req.body.id,
@@ -57,9 +58,6 @@ const checkPerform = async (req, res) => {
     }
 };
 
-async function getCourseById(id) {
-    return await Courses.findById(id);
-}
 
 
 const createTransaction = async (req, res) => {
