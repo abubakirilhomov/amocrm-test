@@ -97,48 +97,64 @@ const createTransaction = async (req, res) => {
 }
 
 const performTransaction = async (req, res) => {
-    const { transaction_id, status } = req.body.params;
+    try {
+        // Извлекаем 'id' и 'status' из запроса
+        const { id, status } = req.body.params;
 
-    switch (status) {
-        case 1:
-            console.log(`Transaction ${transaction_id} is created.`);
-            break;
+        if (!id) {
+            throw new Error("Параметр 'id' отсутствует в запросе.");
+        }
 
-        case 2:
-            console.log(`Transaction ${transaction_id} is completed.`);
-            await completeTransaction(transaction_id);
-            break;
-        case -1:
-        case -2:
-            console.log(`Transaction ${transaction_id} is canceled.`);
-            await cancelTransaction(transaction_id);
-            break;
+        if (status === undefined) {
+            throw new Error("Параметр 'status' отсутствует в запросе.");
+        }
 
-        default:
-            return res.json({
-                jsonrpc: '2.0',
-                id: req.body.id,
-                error: {
-                    code: -31001,
-                    message: { ru: 'Транзакция не существует', uz: 'Transaksiya mavjud emas', en: 'Transaction does not exist' }
-                }
-            });
+        switch (status) {
+            case 1:
+                console.log(`Transaction ${id} is created.`);
+                // Логика для создания транзакции
+                break;
+
+            case 2:
+                console.log(`Transaction ${id} is completed.`);
+                await completeTransaction(id);
+                break;
+
+            case -1:
+            case -2:
+                console.log(`Transaction ${id} is canceled.`);
+                await cancelTransaction(id);
+                break;
+
+            default:
+                return res.json({
+                    jsonrpc: '2.0',
+                    id: req.body.id,
+                    error: {
+                        code: -31008,
+                        message: { ru: 'Неверный статус транзакции', uz: 'Noto‘g‘ri tranzaksiya holati', en: 'Invalid transaction status' }
+                    }
+                });
+        }
+
+        res.json({
+            jsonrpc: '2.0',
+            id: req.body.id,
+            result: { status: 'success' }
+        });
+    } catch (error) {
+        console.error('Error in performTransaction:', error);
+        res.status(500).json({
+            jsonrpc: '2.0',
+            id: req.body.id,
+            error: {
+                code: -32000,
+                message: { ru: 'Внутренняя ошибка сервера', uz: 'Ichki server xatosi', en: 'Internal server error' }
+            }
+        });
     }
+};
 
-    res.json({
-        jsonrpc: '2.0',
-        id: req.body.id,
-        result: { status: 'success' }
-    });
-}
-
-async function completeTransaction(transactionId) {
-    const course = await Invoices.findOneAndUpdate(
-        { status: 'ОПЛАЧЕНО' },
-        { new: true }
-    );
-    return course;
-}
 
 async function cancelTransaction(transactionId) {
     const course = await Invoices.findOneAndUpdate(
