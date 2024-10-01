@@ -1,6 +1,5 @@
 const Courses = require('../models/courseModel');
 const Invoices = require('../models/invoiceModel');
-const Order = require('../models/orderModel');
 
 async function getCourseById(id) {
     return await Courses.findById(id);
@@ -35,15 +34,6 @@ const checkPerform = async (req, res) => {
             });
         }
 
-        const newOrder = new Order({
-            course_id: account.course_id,
-            user_id: account.user_id,
-            amount: amount,
-            status: 'ВЫСТАВЛЕНО'
-        });
-
-        await newOrder.save();
-
         res.json({
             jsonrpc: '2.0',
             id: req.body.id,
@@ -61,7 +51,6 @@ const checkPerform = async (req, res) => {
         });
     }
 };
-
 
 
 const createTransaction = async (req, res) => {
