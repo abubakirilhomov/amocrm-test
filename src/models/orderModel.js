@@ -10,7 +10,7 @@ const ordersSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "Invoice",
-      required: true,
+      required: false, 
     },
     amount: {
       type: Number,
