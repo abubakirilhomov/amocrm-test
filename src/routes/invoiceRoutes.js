@@ -1,6 +1,6 @@
 const express = require('express');
 const { createInvoice, getInvoices, getInvoiceById } = require('../controllers/invoiceController');
-const { updateInvoiceStatusToPaid, checkInvoicesForExpiration } = require('../controllers/paymentController');
+const { updateInvoiceStatusToPaid, checkInvoicesForExpiration } = require('../controllers/checkInvoiceController');
 const router = express.Router();
 
 router.post('/invoices', createInvoice);
