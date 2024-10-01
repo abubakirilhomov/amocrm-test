@@ -2,9 +2,12 @@ const Courses = require('../models/courseModel');
 const Invoices = require('../models/invoiceModel');
 const Order = require('../models/orderModel');
 
+async function getCourseById(id) {
+    return await Courses.findById(id);
+}
+
 const checkPerform = async (req, res) => {
     const { amount, account } = req.body.params;
-    const user_id = account.user_id; // Получите user_id из запроса
 
     try {
         const course = await getCourseById(account.course_id);
@@ -33,7 +36,7 @@ const checkPerform = async (req, res) => {
 
         const newOrder = new Order({
             course_id: account.course_id,
-            user_id: user_id, 
+            user_id: account.user_id,
             amount: amount,
             status: 'ВЫСТАВЛЕНО'
         });
