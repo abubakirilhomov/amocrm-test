@@ -1,35 +1,60 @@
-const mongoose = require("mongoose");
-const Counter = require("./counterModel");
+const mongoose = require('mongoose');
 
-const invoiceSchema = new mongoose.Schema(
-  {
-    clientName: {
-      type: String,
-      required: true,
-    },
-    clientAddress: {
-      type: String,
-      required: true,
-    },
-    clientPhone: {
-      type: String,
-      required: true,
-    },
-    invoiceNumber: {
-      type: Number,
-      unique: true,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["НЕ ОПЛАЧЕН", "ВЫСТАВЛЕНО", "ОПЛАЧЕН", "ОТМЕНЁН"],
-      default: "НЕ ОПЛАЧЕН",
-    },
+const invoiceSchema = new mongoose.Schema({
+  transactionId: {
+    type: String,
+    unique: true,
+    required: true
   },
-  {
-    timestamps: true,
+  invoiceNumber: {
+    type: String,
+    unique: true,
+    required: false
+  },
+  create_time: {
+    type: Number,
+    required: true
+  },
+  perform_time: {
+    type: Number
+  },
+  cancel_time: {
+    type: Number
+  },
+  state: {
+    type: Number,
+    required: true
+  },
+  amount: {
+    type: Number,
+    required: true
+  },
+  course_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course',
+    required: true
+  },
+  clientName: {
+    type: String,
+    required: true
+  },
+  clientPhone: {
+    type: String,
+    required: true 
+  },
+  clientAddress: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ["НЕ ОПЛАЧЕН", "ВЫСТАВЛЕНО", "ОПЛАЧЕН", "ОТМЕНЁН"],
+    default: "НЕ ОПЛАЧЕН",
+  },
+  reason: {
+    type: Number
   }
-);
+});
 
 invoiceSchema.pre("save", async function (next) {
   const invoice = this;
@@ -49,4 +74,4 @@ invoiceSchema.pre("save", async function (next) {
   }
 });
 
-module.exports = mongoose.model("Invoice", invoiceSchema);
+module.exports = mongoose.model('Invoice', invoiceSchema);
