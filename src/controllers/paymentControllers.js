@@ -76,15 +76,15 @@ const createTransaction = async (req, res) => {
             });
         }
 
-        const transactionId = `txn_${new Date().getTime()}`; 
-        const createTime = Date.now(); 
+        const transactionId = `txn_${new Date().getTime()}`;
+        const createTime = Date.now();
 
         res.json({
             jsonrpc: '2.0',
             id: req.body.id,
             result: {
-                create_time: createTime, 
-                transaction: transactionId, 
+                create_time: createTime,
+                transaction: transactionId,
                 state: 1
             }
         });
@@ -137,7 +137,6 @@ async function completeTransaction(transactionId) {
     );
     return course;
 }
-
 async function cancelTransaction(transactionId) {
     const course = await Invoices.findOneAndUpdate(
         { invoiceNumber: transactionId },
