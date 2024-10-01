@@ -7,8 +7,6 @@ const {
   courseRoutes,
   invoiceRoutes,
   counterRoutes,
-  checkPersormRoute,
-  performTransaction,
   paymentRoutes,
   orderRoutes,
   authRoutes,
@@ -22,8 +20,6 @@ connectDB();
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use("/", checkPersormRoute);
-app.use("/", performTransaction);
 app.use("/", paymentRoutes);
 app.use("/api/v1", courseRoutes);
 app.use("/api/v1", invoiceRoutes);
