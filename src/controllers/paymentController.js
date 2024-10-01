@@ -3,7 +3,7 @@ const Invoices = require('../models/invoiceModel');
 const Order = require('../models/orderModel');
 
 const checkPerform = async (req, res) => {
-    const { amount, account } = req.body.params;
+    const { amount, account } = req.body;
 
     const course = await getCourseById(account.course_id);
 
@@ -76,15 +76,15 @@ const createTransaction = async (req, res) => {
             });
         }
 
-        const transactionId = `txn_${new Date().getTime()}`; 
-        const createTime = Date.now(); 
+        const transactionId = `txn_${new Date().getTime()}`;
+        const createTime = Date.now();
 
         res.json({
             jsonrpc: '2.0',
             id: req.body.id,
             result: {
-                create_time: createTime, 
-                transaction: transactionId, 
+                create_time: createTime,
+                transaction: transactionId,
                 state: 1
             }
         });
@@ -145,6 +145,6 @@ async function cancelTransaction(transactionId) {
         { new: true }
     );
     return course;
-}   
+}
 
 module.exports = { checkPerform, createTransaction, performTransaction }
