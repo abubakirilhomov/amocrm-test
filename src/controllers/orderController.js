@@ -3,9 +3,7 @@ const Order = require("../models/orderModel");
 
 const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
-      .populate("course_id")
-      .populate("user_id");
+    const orders = await Order.find().populate("course_id")
     res.status(200).json({ data: orders });
   } catch (error) {
     console.error("Error getting orders:", error);
@@ -16,10 +14,7 @@ const getOrders = async (req, res) => {
 const getOrderById = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await Order.findById(orderId)
-      .populate("course_id")
-      .populate("user_id");
-
+    const order = await Order.findById(orderId).populate("course_id")
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
