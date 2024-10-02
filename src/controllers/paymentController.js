@@ -1,5 +1,3 @@
-// paymentController.js
-
 const Courses = require('../models/courseModel');
 const Invoices = require('../models/invoiceModel');
 const Orders = require('../models/orderModel');
@@ -20,7 +18,6 @@ const handlePaymeRequest = async (req, res) => {
         case 'CheckTransaction':
             await checkTransaction(req, res);
             break;
-        // Добавьте обработку других методов при необходимости
         default:
             res.json({
                 jsonrpc: '2.0',
@@ -37,7 +34,6 @@ const handlePaymeRequest = async (req, res) => {
     }
 };
 
-// Функция для проверки возможности выполнения транзакции
 const checkPerform = async (req, res) => {
     const { amount, account } = req.body.params || {};
 
@@ -136,11 +132,9 @@ const createTransaction = async (req, res) => {
     }
 
     try {
-        // Проверьте, существует ли транзакция с таким ID
         let transaction = await Invoices.findOne({ transactionId: id });
 
         if (transaction) {
-            // Если транзакция уже существует, верните её статус
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -152,12 +146,11 @@ const createTransaction = async (req, res) => {
             });
         }
 
-        // Создайте новую транзакцию
         transaction = new Invoices({
             transactionId: id,
             create_time: time,
             amount: amount,
-            state: 1, // Статус "Создана"
+            state: 1,
             course_id: account.course_id
         });
 
@@ -189,7 +182,6 @@ const createTransaction = async (req, res) => {
     }
 };
 
-// Функция для выполнения транзакции
 const performTransaction = async (req, res) => {
     const { id } = req.body.params || {};
 
