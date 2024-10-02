@@ -149,14 +149,15 @@ const createTransaction = async (req, res) => {
 
         transaction = new Orders({
             transactionId: id,
-            invoiceNumber: id,
+            invoiceNumber: id, // Используем id транзакции в качестве номера счета
             create_time: time,
             amount: amount,
-            state: 1,
+            state: 1, // Статус "Создана"
             course_id: account.course_id,
             clientName: account.clientName || 'Не указано',
             clientPhone: account.clientPhone || 'Не указано',
-            clientAddress: account.clientAddress || 'Не указано'
+            clientAddress: account.clientAddress || 'Не указано',
+            status: 'НЕ ОПЛАЧЕНО'
         });
 
         await transaction.save();
@@ -188,7 +189,6 @@ const createTransaction = async (req, res) => {
     }
 };
 
-
 const performTransaction = async (req, res) => {
     const { id } = req.body.params || {};
 
@@ -204,12 +204,14 @@ const performTransaction = async (req, res) => {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
                     en: 'Transaction ID is missing'
-                }
+                },
+                data: 'id'
             }
         });
     }
 
     try {
+        // Находим транзакцию в коллекции Orders
         let transaction = await Orders.findOne({ transactionId: id });
 
         if (!transaction) {
@@ -228,8 +230,14 @@ const performTransaction = async (req, res) => {
             });
         }
 
-
+        // Если транзакция уже выполнена
         if (transaction.state === 2) {
+            // Обновляем статус заказа на "ОПЛАЧЕНО", если необходимо
+            if (transaction.status !== 'ОПЛАЧЕНО') {
+                transaction.status = 'ОПЛАЧЕНО';
+                await transaction.save();
+            }
+
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -241,9 +249,10 @@ const performTransaction = async (req, res) => {
             });
         }
 
+        // Обновляем состояние транзакции
         transaction.state = 2;
         transaction.perform_time = Date.now();
-        transaction.status = 'ОПЛАЧЕН';
+        transaction.status = 'ОПЛАЧЕНО';
         await transaction.save();
 
         res.json({
@@ -266,7 +275,8 @@ const performTransaction = async (req, res) => {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
                     en: 'Server error'
-                }
+                },
+                data: 'server'
             }
         });
     }
@@ -287,7 +297,8 @@ const checkTransaction = async (req, res) => {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
                     en: 'Transaction ID is missing'
-                }
+                },
+                data: 'id'
             }
         });
     }
@@ -305,7 +316,8 @@ const checkTransaction = async (req, res) => {
                         ru: 'Транзакция не найдена',
                         uz: 'Tranzaksiya topilmadi',
                         en: 'Transaction not found'
-                    }
+                    },
+                    data: 'id'
                 }
             });
         }
@@ -333,7 +345,8 @@ const checkTransaction = async (req, res) => {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
                     en: 'Server error'
-                }
+                },
+                data: 'server'
             }
         });
     }
