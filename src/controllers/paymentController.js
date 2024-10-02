@@ -148,11 +148,10 @@ const createTransaction = async (req, res) => {
         }
 
         transaction = new Orders({
-            transactionId: id,
-            invoiceNumber: id, // Используем id транзакции в качестве номера счета
+            transactionId: id, 
             create_time: time,
             amount: amount,
-            state: 1, // Статус "Создана"
+            state: 1, 
             course_id: account.course_id,
             clientName: account.clientName || 'Не указано',
             clientPhone: account.clientPhone || 'Не указано',
@@ -211,7 +210,6 @@ const performTransaction = async (req, res) => {
     }
 
     try {
-        // Находим транзакцию в коллекции Orders
         let transaction = await Orders.findOne({ transactionId: id });
 
         if (!transaction) {
@@ -230,9 +228,7 @@ const performTransaction = async (req, res) => {
             });
         }
 
-        // Если транзакция уже выполнена
         if (transaction.state === 2) {
-            // Обновляем статус заказа на "ОПЛАЧЕНО", если необходимо
             if (transaction.status !== 'ОПЛАЧЕНО') {
                 transaction.status = 'ОПЛАЧЕНО';
                 await transaction.save();
@@ -249,7 +245,6 @@ const performTransaction = async (req, res) => {
             });
         }
 
-        // Обновляем состояние транзакции
         transaction.state = 2;
         transaction.perform_time = Date.now();
         transaction.status = 'ОПЛАЧЕНО';
