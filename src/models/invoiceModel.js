@@ -54,7 +54,7 @@ const invoiceSchema = new mongoose.Schema({
   },
   reason: {
     type: Number
-  }
+  },
 });
 invoiceSchema.pre("save", async function (next) {
   const invoice = this;
