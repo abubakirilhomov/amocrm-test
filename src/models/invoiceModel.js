@@ -2,38 +2,10 @@ const mongoose = require('mongoose');
 const counterModel = require('./counterModel');
 
 const invoiceSchema = new mongoose.Schema({
-  transactionId: {
-    type: String,
-    unique: true,
-    required: true
-  },
   invoiceNumber: {
     type: String,
     unique: true,
     required: false
-  },
-  create_time: {
-    type: Number,
-    required: true
-  },
-  perform_time: {
-    type: Number
-  },
-  cancel_time: {
-    type: Number
-  },
-  state: {
-    type: Number,
-    required: true
-  },
-  amount: {
-    type: Number,
-    required: true
-  },
-  course_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course',
-    required: true
   },
   clientName: {
     type: String,
@@ -41,7 +13,7 @@ const invoiceSchema = new mongoose.Schema({
   },
   clientPhone: {
     type: String,
-    required: true 
+    required: true
   },
   clientAddress: {
     type: String,
@@ -51,9 +23,6 @@ const invoiceSchema = new mongoose.Schema({
     type: String,
     enum: ["НЕ ОПЛАЧЕН", "ВЫСТАВЛЕНО", "ОПЛАЧЕН", "ОТМЕНЁН"],
     default: "НЕ ОПЛАЧЕН",
-  },
-  reason: {
-    type: Number
   },
 });
 invoiceSchema.pre("save", async function (next) {

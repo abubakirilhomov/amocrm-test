@@ -133,7 +133,7 @@ const createTransaction = async (req, res) => {
     }
 
     try {
-        let transaction = await Invoices.findOne({ transactionId: id });
+        let transaction = await Orders.findOne({ transactionId: id });
 
         if (transaction) {
             return res.json({
@@ -147,7 +147,7 @@ const createTransaction = async (req, res) => {
             });
         }
 
-        transaction = new Invoices({
+        transaction = new Orders({
             transactionId: id,
             invoiceNumber: id,
             create_time: time,
@@ -210,7 +210,7 @@ const performTransaction = async (req, res) => {
     }
 
     try {
-        let transaction = await Invoices.findOne({ transactionId: id });
+        let transaction = await Orders.findOne({ transactionId: id });
 
         if (!transaction) {
             return res.json({
@@ -293,7 +293,7 @@ const checkTransaction = async (req, res) => {
     }
 
     try {
-        let transaction = await Invoices.findOne({ transactionId: id });
+        let transaction = await Orders.findOne({ transactionId: id });
 
         if (!transaction) {
             return res.json({
