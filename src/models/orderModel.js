@@ -5,7 +5,7 @@ const ordersSchema = new mongoose.Schema(
     course_id: {
       type: mongoose.Types.ObjectId,
       ref: "Course",
-      required: true,
+      required: false,
     },
     user_id: {
       type: mongoose.Types.ObjectId,
