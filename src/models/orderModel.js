@@ -56,4 +56,4 @@ const orderSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Invoice', invoiceSchema);
+module.exports = mongoose.model('Invoice', orderSchema);

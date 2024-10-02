@@ -21,8 +21,8 @@ const invoiceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["НЕ ОПЛАЧЕН", "ВЫСТАВЛЕНО", "ОПЛАЧЕН", "ОТМЕНЁН"],
-    default: "НЕ ОПЛАЧЕН",
+    enum: ["НЕ ОПЛАЧЕНО", "ВЫСТАВЛЕНО", "ОПЛАЧЕНО", "ОТМЕНЕНО"],
+    default: "НЕ ОПЛАЧЕНО",
   },
 });
 invoiceSchema.pre("save", async function (next) {
