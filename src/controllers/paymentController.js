@@ -204,8 +204,7 @@ const performTransaction = async (req, res) => {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
                     en: 'Transaction ID is missing'
-                },
-                data: 'id'
+                }
             }
         });
     }
@@ -229,11 +228,8 @@ const performTransaction = async (req, res) => {
             });
         }
 
-        if (transaction.state === 2) {
-            // Транзакция уже выполнена, статус должен быть "ОПЛАЧЕНО"
-            transaction.status = 'ОПЛАЧЕНО';
-            await transaction.save();
 
+        if (transaction.state === 2) {
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -245,13 +241,9 @@ const performTransaction = async (req, res) => {
             });
         }
 
-        // Обновляем состояние транзакции
         transaction.state = 2;
         transaction.perform_time = Date.now();
-
-        // Обновляем статус инвойса на "ОПЛАЧЕНО"
         transaction.status = 'ОПЛАЧЕНО';
-
         await transaction.save();
 
         res.json({
@@ -274,13 +266,11 @@ const performTransaction = async (req, res) => {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
                     en: 'Server error'
-                },
-                data: 'server'
+                }
             }
         });
     }
 };
-
 
 const checkTransaction = async (req, res) => {
     const { id } = req.body.params || {};
