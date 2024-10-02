@@ -1,5 +1,4 @@
 const Courses = require('../models/courseModel');
-const Invoices = require('../models/invoiceModel');
 const Orders = require('../models/orderModel');
 
 const handlePaymeRequest = async (req, res) => {

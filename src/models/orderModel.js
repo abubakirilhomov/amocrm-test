@@ -9,7 +9,7 @@ const orderSchema = new mongoose.Schema({
   invoiceNumber: {
     type: String,
     unique: true,
-    required: false 
+    required: false
   },
   create_time: {
     type: Number,
@@ -56,4 +56,4 @@ const orderSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Invoice', orderSchema);
+module.exports = mongoose.model('Orders', orderSchema);

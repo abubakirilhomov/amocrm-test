@@ -35,7 +35,7 @@ const createInvoice = async (req, res) => {
 
 const getInvoices = async (req, res) => {
     try {
-        const invoices = await Invoice.find()
+        const invoices = await Invoice.find();
         res.json(invoices);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -54,4 +54,24 @@ const getInvoiceById = async (req, res) => {
     }
 };
 
-module.exports = { createInvoice, getInvoices, getInvoiceById };
+const deleteInvoiceById = async (req, res) => {
+    try {
+        const invoice = await Invoice.findById(req.params.id);
+
+        if (!invoice) {
+            return res.status(404).json({ message: 'Invoice not found' });
+        }
+
+        await invoice.remove();
+        res.status(200).json({ message: 'Invoice deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports = {
+    createInvoice,
+    getInvoices,
+    getInvoiceById,
+    deleteInvoiceById
+};
