@@ -126,7 +126,8 @@ const createTransaction = async (req, res) => {
                     ru: 'Параметры запроса неверны',
                     uz: 'So‘rov parametrlari noto‘g‘ri',
                     en: 'Request parameters are invalid'
-                }
+                },
+                data: 'params'
             }
         });
     }
@@ -148,10 +149,14 @@ const createTransaction = async (req, res) => {
 
         transaction = new Invoices({
             transactionId: id,
+            invoiceNumber: id,
             create_time: time,
             amount: amount,
             state: 1,
-            course_id: account.course_id
+            course_id: account.course_id,
+            clientName: account.clientName || 'Не указано',
+            clientPhone: account.clientPhone || 'Не указано',
+            clientAddress: account.clientAddress || 'Не указано'
         });
 
         await transaction.save();
@@ -176,11 +181,13 @@ const createTransaction = async (req, res) => {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
                     en: 'Server error'
-                }
+                },
+                data: 'server'
             }
         });
     }
 };
+
 
 const performTransaction = async (req, res) => {
     const { id } = req.body.params || {};
@@ -215,10 +222,12 @@ const performTransaction = async (req, res) => {
                         ru: 'Транзакция не найдена',
                         uz: 'Tranzaksiya topilmadi',
                         en: 'Transaction not found'
-                    }
+                    },
+                    data: 'id'
                 }
             });
         }
+
 
         if (transaction.state === 2) {
             return res.json({
