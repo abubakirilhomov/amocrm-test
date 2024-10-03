@@ -5,8 +5,10 @@ const paymentRoutes = require("../routes/paymentRoutes");
 const orderRoutes = require("../routes/orderRoutes");
 const authRoutes = require("../routes/authRoutes");
 const transactionRoutes = require("../routes/transRoutes");
+const compareRoutes = require("../routes/compareRoutes");
 
 module.exports = {
+  compareRoutes,
   courseRoutes,
   invoiceRoutes,
   counterRoutes,
