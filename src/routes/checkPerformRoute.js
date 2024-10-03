@@ -1,10 +1,9 @@
 const express = require('express');
 const Courses = require('../models/courseModel');
-const Order = require('../models/orderModel');
 const router = express.Router();
 
 router.post('/check-perform-transaction', async (req, res) => {
-    const { amount, account, id } = req.body.params;
+    const { amount, account, id } = req.body;
 
     const course = await getCourseById(account.course_id);
 
@@ -30,15 +29,6 @@ router.post('/check-perform-transaction', async (req, res) => {
         });
     }
 
-    const newOrder = new Order({
-        course_id: account.course_id,
-        user_id: account.user_id,
-        amount: amount,
-        status: 'pending'
-    });
-
-    await newOrder.save();
-
     res.json({
         jsonrpc: '2.0',
         id: req.body.id,
@@ -52,3 +42,4 @@ async function getCourseById(id) {
 }
 
 module.exports = router;
+
