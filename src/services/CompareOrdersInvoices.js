@@ -20,7 +20,6 @@ const compareOrdersAndInvoices = async () => {
         matchingOrder,
       };
     });
-
     return comparedResults;
   } catch (error) {
     console.error("Error comparing orders and invoices:", error);
