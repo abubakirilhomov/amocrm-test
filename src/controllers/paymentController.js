@@ -246,7 +246,7 @@ const performTransaction = async (req, res) => {
             });
         }
 
-        // transaction.state = 2;
+        transaction.state = 2;
         transaction.perform_time = Date.now();
         // transaction.status = 'ОПЛАЧЕНО';
         await transaction.save();
