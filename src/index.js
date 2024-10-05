@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const {
+  invoiceOrdersRoutes,
   compareRoutes,
   courseRoutes,
   invoiceRoutes,
@@ -29,6 +30,7 @@ app.use("/api/v1/counter", counterRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/v1/compare", compareRoutes);
+app.use("/api/v1", invoiceOrdersRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
