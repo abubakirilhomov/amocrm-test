@@ -157,10 +157,15 @@ const createTransaction = async (req, res) => {
             clientName: account.clientName || 'Не указано',
             clientPhone: account.clientPhone || 'Не указано',
             clientAddress: account.clientAddress || 'Не указано',
-            status: 'ВЫСТАВЛЕНО'
+            status: 'ВЫСТАВЛЕНО' // Устанавливаем статус на ВЫСТАВЛЕНО
         });
 
         await transaction.save();
+
+        await Invoice.findOneAndUpdate(
+            { invoiceNumber: transaction.invoiceNumber },
+            { status: 'ВЫСТАВЛЕНО' }
+        );
 
         res.json({
             jsonrpc: '2.0',
@@ -188,6 +193,7 @@ const createTransaction = async (req, res) => {
         });
     }
 };
+
 
 const performTransaction = async (req, res) => {
     const { id } = req.body.params || {};
@@ -244,8 +250,13 @@ const performTransaction = async (req, res) => {
 
         transaction.state = 2;
         transaction.perform_time = Date.now();
-        transaction.status = 'ОПЛАЧЕНО';
+        transaction.status = 'ОПЛАЧЕНО'; 
         await transaction.save();
+
+        await Invoice.findOneAndUpdate(
+            { invoiceNumber: transaction.invoiceNumber },
+            { status: 'ОПЛАЧЕНО' }
+        );
 
         res.json({
             jsonrpc: '2.0',
@@ -274,6 +285,7 @@ const performTransaction = async (req, res) => {
         });
     }
 };
+
 
 
 const checkTransaction = async (req, res) => {
