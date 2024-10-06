@@ -23,7 +23,7 @@ const createInvoice = async (req, res) => {
             clientAddress,
             clientPhone,
             email,
-            status: 'ВЫСТАВЛЕНО'
+            status: 'НЕ ОПЛАЧЕНО'
         });
 
         const newInvoice = await invoice.save();

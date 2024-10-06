@@ -157,7 +157,7 @@ const createTransaction = async (req, res) => {
             clientName: account.clientName || 'Не указано',
             clientPhone: account.clientPhone || 'Не указано',
             clientAddress: account.clientAddress || 'Не указано',
-            status: 'НЕ ОПЛАЧЕНО'
+            status: 'ВЫСТАВЛЕНО'
         });
 
         await transaction.save();
@@ -229,9 +229,7 @@ const performTransaction = async (req, res) => {
             });
         }
 
-        // Проверка состояния транзакции
         if (transaction.state === 2) {
-            // Если транзакция уже завершена
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -239,15 +237,14 @@ const performTransaction = async (req, res) => {
                     transaction: transaction.transactionId,
                     perform_time: transaction.perform_time,
                     state: transaction.state,
-                    status: transaction.status // Добавьте статус для информации
+                    status: transaction.status
                 }
             });
         }
 
-        // Обновление статуса транзакции
         transaction.state = 2;
         transaction.perform_time = Date.now();
-        transaction.status = 'ОПЛАЧЕНО'; // Установите статус как "ОПЛАЧЕНО"
+        transaction.status = 'ОПЛАЧЕНО';
         await transaction.save();
 
         res.json({
@@ -257,7 +254,7 @@ const performTransaction = async (req, res) => {
                 transaction: transaction.transactionId,
                 perform_time: transaction.perform_time,
                 state: transaction.state,
-                status: transaction.status // Возвращайте обновленный статус
+                status: transaction.status
             }
         });
     } catch (error) {
