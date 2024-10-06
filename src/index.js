@@ -15,19 +15,17 @@ const {
   transactionRoutes
 } = require("./config/allRoutes");
 
-const corsOptions = {
-  origin: ['http://localhost:3000'],
-  methods: 'GET,POST,PUT,DELETE',
-  allowedHeaders: 'Content-Type,Authorization',
-  credentials: true,
-};
-
 dotenv.config();
 
 connectDB();
 
 const app = express();
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: 'http://localhost:3000', 
+  methods: 'GET,POST',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
+}));
 app.use(bodyParser.json());
 app.use("/", paymentRoutes);
 app.use("/api/v1", courseRoutes);
