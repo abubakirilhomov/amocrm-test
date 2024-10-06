@@ -131,7 +131,6 @@ const createTransaction = async (req, res) => {
             }
         });
     }
-
     try {
         let transaction = await Orders.findOne({ transactionId: id });
 
@@ -157,7 +156,7 @@ const createTransaction = async (req, res) => {
             clientName: account.clientName || 'Не указано',
             clientPhone: account.clientPhone || 'Не указано',
             clientAddress: account.clientAddress || 'Не указано',
-            status: 'ВЫСТАВЛЕНО' // Устанавливаем статус на ВЫСТАВЛЕНО
+            status: 'ВЫСТАВЛЕНО'
         });
 
         await transaction.save();
@@ -250,7 +249,7 @@ const performTransaction = async (req, res) => {
 
         transaction.state = 2;
         transaction.perform_time = Date.now();
-        transaction.status = 'ОПЛАЧЕНО'; 
+        transaction.status = 'ОПЛАЧЕНО';
         await transaction.save();
 
         await Invoice.findOneAndUpdate(
