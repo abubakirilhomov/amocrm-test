@@ -21,7 +21,7 @@ connectDB();
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:3000', 
+  origin: ['http://localhost:3000', "https://test.paycom.uz"],
   methods: 'GET,POST',
   allowedHeaders: 'Content-Type,Authorization',
   credentials: true,
