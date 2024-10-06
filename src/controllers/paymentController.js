@@ -229,25 +229,25 @@ const performTransaction = async (req, res) => {
             });
         }
 
+        // Проверка состояния транзакции
         if (transaction.state === 2) {
-            if (transaction.status !== 'ОПЛАЧЕНО') {
-                transaction.status = 'ОПЛАЧЕНО';
-                await transaction.save();
-            }
-
+            // Если транзакция уже завершена
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
                 result: {
                     transaction: transaction.transactionId,
                     perform_time: transaction.perform_time,
-                    state: transaction.state
+                    state: transaction.state,
+                    status: transaction.status // Добавьте статус для информации
                 }
             });
         }
+
+        // Обновление статуса транзакции
         transaction.state = 2;
         transaction.perform_time = Date.now();
-        // transaction.status = 'ОПЛАЧЕНО';
+        transaction.status = 'ОПЛАЧЕНО'; // Установите статус как "ОПЛАЧЕНО"
         await transaction.save();
 
         res.json({
@@ -256,7 +256,8 @@ const performTransaction = async (req, res) => {
             result: {
                 transaction: transaction.transactionId,
                 perform_time: transaction.perform_time,
-                state: transaction.state
+                state: transaction.state,
+                status: transaction.status // Возвращайте обновленный статус
             }
         });
     } catch (error) {
@@ -276,6 +277,7 @@ const performTransaction = async (req, res) => {
         });
     }
 };
+
 
 const checkTransaction = async (req, res) => {
     const { id } = req.body.params || {};
