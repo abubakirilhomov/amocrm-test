@@ -16,10 +16,10 @@ const {
 } = require("./config/allRoutes");
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://your-production-domain.com'], // Allow these origins only
-  methods: 'GET,POST,PUT,DELETE', // Specify allowed HTTP methods
-  allowedHeaders: 'Content-Type,Authorization', // Specify allowed headers
-  credentials: true,  // If you want to allow cookies and credentials
+  origin: ['http://localhost:3000'],
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
 };
 
 dotenv.config();
