@@ -7,8 +7,12 @@ const authRoutes = require("../routes/authRoutes");
 const transactionRoutes = require("../routes/transRoutes");
 const compareRoutes = require("../routes/compareRoutes");
 const invoiceOrdersRoutes = require("../routes/invoiceOrdersRoutes")
+const clickPrepRoutes = require("../routes/clickPrepRoutes")
+const clickCompleteRoutes = require("../routes/clickCompleteRoute")
 
 module.exports = {
+  clickCompleteRoutes,
+  clickPrepRoutes,
   invoiceOrdersRoutes,
   compareRoutes,
   courseRoutes,
