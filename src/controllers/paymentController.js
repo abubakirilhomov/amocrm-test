@@ -18,6 +18,9 @@ const handlePaymeRequest = async (req, res) => {
         case 'CheckTransaction':
             await checkTransaction(req, res);
             break;
+        case 'GetStatement':
+            await getStatement(req, res);
+            break;
         default:
             res.json({
                 jsonrpc: '2.0',
@@ -356,5 +359,52 @@ const checkTransaction = async (req, res) => {
         });
     }
 };
+
+const getStatement = async (req, res) => {
+    const { from, to } = req.body.params;  // Получаем даты из запроса
+
+    try {
+        // Пример запроса к базе данных для получения транзакций по дате
+        const transactions = await Orders.find({
+            create_time: {
+                $gte: new Date(from),
+                $lte: new Date(to),
+            },
+        });
+
+        // Если транзакции найдены, возвращаем их
+        if (transactions.length > 0) {
+            res.json({
+                jsonrpc: "2.0",
+                id: req.body.id,
+                result: {
+                    transactions: transactions,
+                },
+            });
+        } else {
+            res.json({
+                jsonrpc: "2.0",
+                id: req.body.id,
+                result: {
+                    transactions: [],
+                },
+            });
+        }
+    } catch (error) {
+        console.error("Ошибка в методе GetStatement:", error);
+        res.status(500).json({
+            jsonrpc: "2.0",
+            id: req.body.id,
+            error: {
+                code: -32000,
+                message: {
+                    ru: "Ошибка сервера",
+                    en: "Server error",
+                },
+            },
+        });
+    }
+};
+
 
 module.exports = { handlePaymeRequest };
