@@ -24,7 +24,7 @@ const invoiceSchema = new mongoose.Schema({
     enum: ["НЕ ОПЛАЧЕНО", "ВЫСТАВЛЕНО", "ОПЛАЧЕНО", "ОТМЕНЕНО"],
     default: "НЕ ОПЛАЧЕНО",
   },
-});
+}, { timestamps: true });
 invoiceSchema.pre("save", async function (next) {
   const invoice = this;
 

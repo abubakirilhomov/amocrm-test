@@ -51,7 +51,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['НЕ ОПЛАЧЕНО', 'ОПЛАЧЕНО', 'ОТМЕНЕНО'],
+    enum: ['НЕ ОПЛАЧЕНО', 'ВЫСТАВЛЕНО', 'ОПЛАЧЕНО', 'ОТМЕНЕНО'],
     default: 'НЕ ОПЛАЧЕНО'
   }
 });

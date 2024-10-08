@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const {
+  invoiceOrdersRoutes,
+  compareRoutes,
   courseRoutes,
   invoiceRoutes,
   counterRoutes,
@@ -18,7 +20,12 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', "https://test.paycom.uz"],
+  methods: 'GET,POST',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
+}));
 app.use(bodyParser.json());
 app.use("/", paymentRoutes);
 app.use("/api/v1", courseRoutes);
@@ -27,6 +34,8 @@ app.use("/api/v1", orderRoutes);
 app.use("/api/v1/counter", counterRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/v1/compare", compareRoutes);
+app.use("/api/v1", invoiceOrdersRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
