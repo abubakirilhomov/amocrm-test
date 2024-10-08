@@ -361,50 +361,78 @@ const checkTransaction = async (req, res) => {
 };
 
 const getStatement = async (req, res) => {
-    const { from, to } = req.body.params;  // Получаем даты из запроса
+    const { from, to } = req.body.params || {};  // Получаем даты из запроса
+
+    console.log('Received request in getStatement:', req.body);
 
     try {
-        // Пример запроса к базе данных для получения транзакций по дате
-        const transactions = await Orders.find({
-            create_time: {
-                $gte: new Date(from),
-                $lte: new Date(to),
-            },
-        });
-
-        // Если транзакции найдены, возвращаем их
-        if (transactions.length > 0) {
-            res.json({
-                jsonrpc: "2.0",
-                id: req.body.id,
-                result: {
-                    transactions: transactions,
-                },
-            });
-        } else {
-            res.json({
-                jsonrpc: "2.0",
-                id: req.body.id,
-                result: {
-                    transactions: [],
+        // Проверяем наличие и корректность параметров from и to
+        if (typeof from !== 'number' || typeof to !== 'number') {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id || null,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Параметры запроса неверны',
+                        uz: 'So‘rov parametrlari noto‘g‘ri',
+                        en: 'Request parameters are invalid',
+                    },
+                    data: 'params',
                 },
             });
         }
+
+        // Получаем транзакции из базы данных
+        const transactions = await Orders.find({
+            create_time: {
+                $gte: from,
+                $lte: to,
+            },
+        });
+
+        const formattedTransactions = transactions.map(transaction => ({
+            id: transaction.transactionId.toString(),
+            time: transaction.create_time,
+            amount: transaction.amount,
+            account: {
+                course_id: transaction.course_id,
+                clientName: transaction.clientName,
+                clientPhone: transaction.clientPhone,
+                clientAddress: transaction.clientAddress,
+            },
+            create_time: transaction.create_time,
+            perform_time: transaction.perform_time || 0,
+            cancel_time: transaction.cancel_time || 0,
+            state: transaction.state,
+            reason: transaction.reason || null,
+        }));
+
+        res.json({
+            jsonrpc: "2.0",
+            id: req.body.id || null,
+            result: {
+                transactions: formattedTransactions,
+            },
+        });
     } catch (error) {
         console.error("Ошибка в методе GetStatement:", error);
-        res.status(500).json({
+        res.json({
             jsonrpc: "2.0",
-            id: req.body.id,
+            id: req.body.id || null,
             error: {
-                code: -32000,
+                code: -32400,
                 message: {
                     ru: "Ошибка сервера",
+                    uz: "Server xatosi",
                     en: "Server error",
                 },
+                data: null,
             },
         });
     }
 };
+
 
 
 module.exports = { handlePaymeRequest };
