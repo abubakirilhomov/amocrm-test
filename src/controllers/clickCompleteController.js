@@ -1,4 +1,5 @@
 const completeService = require('../services/clickCompleteService');
+const calculatedSign = require('../services/clickCompleteService')
 
 // Контроллер завершения платежа
 exports.completePayment = async (req, res) => {
@@ -26,7 +27,11 @@ exports.completePayment = async (req, res) => {
             error,
             sign_time
         });
-
+        
+        if (sign_string === undefined || sign_string === null || sign_string === '') {
+            return { error: -1, error_note: 'Sign string is missing' };
+        }
+        console.log(sign_string,"asdadsa", calculatedSign)
         if (calculatedSign !== sign_string) {
             return res.status(400).json({
                 error: -1,
@@ -40,7 +45,9 @@ exports.completePayment = async (req, res) => {
             merchant_trans_id,
             merchant_prepare_id,
             amount,
-            error
+            error,
+            sign_time,
+            sign_string
         });
 
         if (result.error) {

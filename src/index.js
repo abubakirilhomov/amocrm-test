@@ -23,8 +23,12 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: ['http://localhost:3000', "https://test.paycom.uz", "https://"],
+  methods: 'GET,POST',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
+}));
 app.use(bodyParser.json());
 
 app.use("/", paymentRoutes);

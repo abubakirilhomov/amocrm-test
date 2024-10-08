@@ -1,7 +1,6 @@
 const crypto = require('crypto');
 const Course = require('../models/courseModel');
 
-// Функция для генерации подписи
 exports.calculateSign = ({
     click_trans_id,
     service_id,
@@ -9,14 +8,13 @@ exports.calculateSign = ({
     merchant_prepare_id,
     amount,
     action,
-    sign_time
+    sign_time,
 }) => {
-    const SECRET_KEY = 'YOUR_SECRET_KEY';
+    const SECRET_KEY = 'seckey';
     const hashString = `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${merchant_prepare_id}${amount}${action}${sign_time}`;
-    console.log('String for hashing:', hashString);
-    return crypto.createHash('md5').update(hashString).digest('hex');
+    return (crypto.createHash('md5').update(hashString).digest('hex'))
 };
-// Логика завершения платежа
+
 exports.completePayment = async ({
     click_trans_id,
     click_paydoc_id,

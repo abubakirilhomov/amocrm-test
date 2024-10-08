@@ -2,10 +2,10 @@ const prepareService = require('../services/clickPrepService')
 
 exports.preparePayment = async (req, res) => {
     try {
-        const { click_trans_id, service_id, merchant_trans_id, amount, action, sign_time } = req.body;
+        const { click_trans_id, service_id, merchant_trans_id, amount, action, sign_time, sign_string } = req.body;
         
-        const result = await prepareService.preparePayment({
-            click_trans_id, service_id, merchant_trans_id, amount, action, sign_time, amount
+        const result = await prepareService.preparePayment({    
+            click_trans_id, service_id, merchant_trans_id, amount, action, sign_time, amount, sign_string
         });
 
         if (result.error) {
