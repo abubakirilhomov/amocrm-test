@@ -46,17 +46,17 @@ const checkPerform = async (req, res) => {
     console.log('Received request in checkPerform:', req.body);
 
     if (!account || !account.course_id) {
-        console.error('Account или account.course_id отсутствует в запросе:', req.body);
         return res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
                 code: -31050,
                 message: {
-                    ru: 'Параметры запроса неверны',
-                    uz: 'So‘rov parametrlari noto‘g‘ri',
-                    en: 'Request parameters are invalid'
-                }
+                    ru: 'Курс не найден',
+                    uz: 'Kurs topilmadi',
+                    en: 'Course not found'
+                },
+                data: 'course_id'
             }
         });
     }
@@ -65,6 +65,7 @@ const checkPerform = async (req, res) => {
         const course = await Courses.findById(account.course_id);
 
         if (!course) {
+            // Ошибка: Курс не найден
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -74,12 +75,15 @@ const checkPerform = async (req, res) => {
                         ru: 'Курс не найден',
                         uz: 'Kurs topilmadi',
                         en: 'Course not found'
-                    }
+                    },
+                    data: 'course_id'
                 }
             });
         }
 
-        if (course.price !== amount) {
+        const coursePriceInTiyin = course.price * 100;
+
+        if (coursePriceInTiyin !== amount) {
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -89,7 +93,8 @@ const checkPerform = async (req, res) => {
                         ru: 'Неверная сумма',
                         uz: 'Noto‘g‘ri summa',
                         en: 'Incorrect amount'
-                    }
+                    },
+                    data: 'amount'
                 }
             });
         }
@@ -101,7 +106,7 @@ const checkPerform = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in checkPerform:', error);
-        res.status(500).json({
+        res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
@@ -110,11 +115,13 @@ const checkPerform = async (req, res) => {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
                     en: 'Server error'
-                }
+                },
+                data: 'server'
             }
         });
     }
 };
+
 
 const createTransaction = async (req, res) => {
     const { id, time, amount, account } = req.body.params || {};
@@ -364,12 +371,11 @@ const checkTransaction = async (req, res) => {
 };
 
 const getStatement = async (req, res) => {
-    const { from, to } = req.body.params || {};  // Получаем даты из запроса
+    const { from, to } = req.body.params || {};
 
     console.log('Received request in getStatement:', req.body);
 
     try {
-        // Проверяем наличие и корректность параметров from и to
         if (typeof from !== 'number' || typeof to !== 'number') {
             return res.json({
                 jsonrpc: '2.0',
@@ -386,7 +392,6 @@ const getStatement = async (req, res) => {
             });
         }
 
-        // Получаем транзакции из базы данных
         const transactions = await Orders.find({
             create_time: {
                 $gte: from,
@@ -478,7 +483,6 @@ const cancelTransaction = async (req, res) => {
         }
 
         if (transaction.state === 1) {
-            // Транзакция создана, но не выполнена
             transaction.state = -1;
             transaction.cancel_time = Date.now();
             transaction.reason = reason || null;
@@ -490,7 +494,6 @@ const cancelTransaction = async (req, res) => {
                 { status: 'ОТМЕНЕНО' }
             );
         } else if (transaction.state === 2) {
-            // Транзакция выполнена, необходимо вернуть деньги
             transaction.state = -2;
             transaction.cancel_time = Date.now();
             transaction.reason = reason || null;
@@ -502,8 +505,6 @@ const cancelTransaction = async (req, res) => {
                 { status: 'ОТМЕНЕНО' }
             );
         } else if (transaction.state < 0) {
-            // Транзакция уже отменена
-            // Возвращаем текущее состояние
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -514,7 +515,6 @@ const cancelTransaction = async (req, res) => {
                 }
             });
         } else {
-            // Неверное состояние транзакции
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
