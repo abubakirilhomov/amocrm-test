@@ -217,7 +217,7 @@ const performTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -32504,
+                code: -31050,
                 message: {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
@@ -236,7 +236,7 @@ const performTransaction = async (req, res) => {
                 jsonrpc: '2.0',
                 id: req.body.id,
                 error: {
-                    code: -31003,
+                    code: -32504,
                     message: {
                         ru: 'Транзакция не найдена',
                         uz: 'Tranzaksiya topilmadi',
@@ -310,7 +310,7 @@ const checkTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -32504,
+                code: -31050,
                 message: {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
@@ -329,7 +329,7 @@ const checkTransaction = async (req, res) => {
                 jsonrpc: '2.0',
                 id: req.body.id,
                 error: {
-                    code: -31003,
+                    code: -32504,
                     message: {
                         ru: 'Транзакция не найдена',
                         uz: 'Tranzaksiya topilmadi',
@@ -381,7 +381,7 @@ const getStatement = async (req, res) => {
                 jsonrpc: '2.0',
                 id: req.body.id || null,
                 error: {
-                    code: -32504,
+                    code: -31050,
                     message: {
                         ru: 'Параметры запроса неверны',
                         uz: 'So‘rov parametrlari noto‘g‘ri',
@@ -419,6 +419,7 @@ const getStatement = async (req, res) => {
         res.json({
             jsonrpc: "2.0",
             id: req.body.id || null,
+            code: -32504,
             result: {
                 transactions: formattedTransactions,
             },
@@ -452,7 +453,7 @@ const cancelTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -32504,
+                code: -31050,
                 message: {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
@@ -471,7 +472,7 @@ const cancelTransaction = async (req, res) => {
                 jsonrpc: '2.0',
                 id: req.body.id,
                 error: {
-                    code: -31003,
+                    code: -32504,
                     message: {
                         ru: 'Транзакция не найдена',
                         uz: 'Tranzaksiya topilmadi',
