@@ -163,7 +163,7 @@ const createTransaction = async (req, res) => {
 
         res.json({
             jsonrpc: '2.0',
-            id: req.body.id,
+            id: req.body.id,    
             result: {
                 create_time: transaction.create_time,
                 transaction: transaction.transactionId,
