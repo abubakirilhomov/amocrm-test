@@ -18,6 +18,9 @@ const handlePaymeRequest = async (req, res) => {
         case 'CheckTransaction':
             await checkTransaction(req, res);
             break;
+        case 'CancelTransaction':
+            await cancelTransaction(req, res);
+            break;
         case 'GetStatement':
             await getStatement(req, res);
             break;
@@ -429,6 +432,127 @@ const getStatement = async (req, res) => {
                 },
                 data: null,
             },
+        });
+    }
+};
+
+
+const cancelTransaction = async (req, res) => {
+    const { id, reason } = req.body.params || {};
+
+    console.log('Received request in cancelTransaction:', req.body);
+
+    if (!id) {
+        return res.json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31050,
+                message: {
+                    ru: 'Идентификатор транзакции отсутствует',
+                    uz: 'Tranzaksiya identifikatori mavjud emas',
+                    en: 'Transaction ID is missing'
+                },
+                data: 'id'
+            }
+        });
+    }
+
+    try {
+        let transaction = await Orders.findOne({ transactionId: id });
+
+        if (!transaction) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31003,
+                    message: {
+                        ru: 'Транзакция не найдена',
+                        uz: 'Tranzaksiya topilmadi',
+                        en: 'Transaction not found'
+                    },
+                    data: 'id'
+                }
+            });
+        }
+
+        if (transaction.state === 1) {
+            // Транзакция создана, но не выполнена
+            transaction.state = -1;
+            transaction.cancel_time = Date.now();
+            transaction.reason = reason || null;
+            transaction.status = 'ОТМЕНЕНО';
+            await transaction.save();
+
+            await Invoice.findOneAndUpdate(
+                { invoiceNumber: transaction.invoiceNumber },
+                { status: 'ОТМЕНЕНО' }
+            );
+        } else if (transaction.state === 2) {
+            // Транзакция выполнена, необходимо вернуть деньги
+            transaction.state = -2;
+            transaction.cancel_time = Date.now();
+            transaction.reason = reason || null;
+            transaction.status = 'ОТМЕНЕНО';
+            await transaction.save();
+
+            await Invoice.findOneAndUpdate(
+                { invoiceNumber: transaction.invoiceNumber },
+                { status: 'ОТМЕНЕНО' }
+            );
+        } else if (transaction.state < 0) {
+            // Транзакция уже отменена
+            // Возвращаем текущее состояние
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                result: {
+                    transaction: transaction.transactionId,
+                    cancel_time: transaction.cancel_time,
+                    state: transaction.state
+                }
+            });
+        } else {
+            // Неверное состояние транзакции
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31007,
+                    message: {
+                        ru: 'Неверное состояние транзакции',
+                        uz: 'Noto‘g‘ri tranzaksiya holati',
+                        en: 'Invalid transaction state'
+                    },
+                    data: 'state'
+                }
+            });
+        }
+
+        res.json({
+            jsonrpc: '2.0',
+            id: req.body.id,
+            result: {
+                transaction: transaction.transactionId,
+                cancel_time: transaction.cancel_time,
+                state: transaction.state
+            }
+        });
+    } catch (error) {
+        console.error('Error in cancelTransaction:', error);
+        res.json({
+            jsonrpc: '2.0',
+            id: req.body.id || null,
+            error: {
+                code: -31008,
+                message: {
+                    ru: 'Ошибка на стороне сервера',
+                    uz: 'Server tomonda xatolik',
+                    en: 'Server error'
+                },
+                data: 'server'
+            }
         });
     }
 };
