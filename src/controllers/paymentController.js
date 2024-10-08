@@ -50,7 +50,7 @@ const checkPerform = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31050,
+                code: -32504,
                 message: {
                     ru: 'Курс не найден',
                     uz: 'Kurs topilmadi',
@@ -134,7 +134,7 @@ const createTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31050,
+                code: -32504,
                 message: {
                     ru: 'Параметры запроса неверны',
                     uz: 'So‘rov parametrlari noto‘g‘ri',
@@ -217,7 +217,7 @@ const performTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31050,
+                code: -32504,
                 message: {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
@@ -310,7 +310,7 @@ const checkTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31050,
+                code: -32504,
                 message: {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
@@ -381,7 +381,7 @@ const getStatement = async (req, res) => {
                 jsonrpc: '2.0',
                 id: req.body.id || null,
                 error: {
-                    code: -31050,
+                    code: -32504,
                     message: {
                         ru: 'Параметры запроса неверны',
                         uz: 'So‘rov parametrlari noto‘g‘ri',
@@ -452,7 +452,7 @@ const cancelTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31050,
+                code: -32504,
                 message: {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
