@@ -403,7 +403,7 @@ const getStatement = async (req, res) => {
                 jsonrpc: '2.0',
                 id: req.body.id || null,
                 error: {
-                    code: -31003,
+                    code: -32504,
                     message: {
                         ru: 'Транзакция не найдена',
                         uz: 'Tranzaksiya topilmadi',
