@@ -133,17 +133,54 @@ const createTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -32504,
+                code: -32504, 
                 message: {
-                    ru: 'Параметры запроса неверны',
+                    ru: 'Неверные параметры запроса',
                     uz: 'So‘rov parametrlari noto‘g‘ri',
-                    en: 'Request parameters are invalid'
+                    en: 'Invalid request parameters'
                 },
                 data: 'params'
             }
         });
     }
+
     try {
+        const course = await Courses.findById(account.course_id);
+
+        if (!course) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Курс не найден',
+                        uz: 'Kurs topilmadi',
+                        en: 'Course not found'
+                    },
+                    data: 'course_id'
+                }
+            });
+        }
+
+        const coursePriceInTiyin = course.price * 100;
+
+        if (coursePriceInTiyin !== amount) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31001,
+                    message: {
+                        ru: 'Неверная сумма',
+                        uz: 'Noto‘g‘ri summa',
+                        en: 'Incorrect amount'
+                    },
+                    data: 'amount'
+                }
+            });
+        }
+
         let transaction = await Orders.findOne({ transactionId: id });
 
         if (transaction) {
@@ -189,7 +226,7 @@ const createTransaction = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in createTransaction:', error);
-        res.status(500).json({
+        res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
@@ -204,6 +241,7 @@ const createTransaction = async (req, res) => {
         });
     }
 };
+
 
 
 const performTransaction = async (req, res) => {
