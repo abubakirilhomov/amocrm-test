@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const Course = require('../models/courseModel');
+const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.calculateSign = ({
     click_trans_id,
@@ -10,7 +11,7 @@ exports.calculateSign = ({
     action,
     sign_time,
 }) => {
-    const SECRET_KEY = 'seckey';
+
     const hashString = `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${merchant_prepare_id}${amount}${action}${sign_time}`;
     return (crypto.createHash('md5').update(hashString).digest('hex'))
 };
