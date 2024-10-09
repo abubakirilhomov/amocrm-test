@@ -1,7 +1,6 @@
 const crypto = require('crypto');
 const Course = require('../models/courseModel');
-
-const SECRET_KEY = "seckey";
+const SECRET_KEY = process.env.CLICK_SECRET_KEY
 
 exports.preparePayment = async ({ click_trans_id, service_id, merchant_trans_id, amount, action, sign_time, sign_string }) => {
     try {
