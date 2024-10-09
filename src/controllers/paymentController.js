@@ -109,7 +109,7 @@ const checkPerform = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31008,
+                code: -31099,
                 message: {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
@@ -230,7 +230,7 @@ const createTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31008,
+                code: -31099,
                 message: {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
