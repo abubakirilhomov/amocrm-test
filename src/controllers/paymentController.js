@@ -65,7 +65,6 @@ const checkPerform = async (req, res) => {
         const course = await Courses.findById(account.course_id);
 
         if (!course) {
-            // Ошибка: Курс не найден
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -399,6 +398,22 @@ const getStatement = async (req, res) => {
             },
         });
 
+        if (!transactions || transactions.length === 0) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id || null,
+                error: {
+                    code: -32504,
+                    message: {
+                        ru: 'Транзакция не найдена',
+                        uz: 'Tranzaksiya topilmadi',
+                        en: 'Transaction not found',
+                    },
+                    data: null,
+                },
+            });
+        }
+
         const formattedTransactions = transactions.map(transaction => ({
             id: transaction.transactionId.toString(),
             time: transaction.create_time,
@@ -419,7 +434,6 @@ const getStatement = async (req, res) => {
         res.json({
             jsonrpc: "2.0",
             id: req.body.id || null,
-            code: -32504,
             result: {
                 transactions: formattedTransactions,
             },
@@ -430,18 +444,17 @@ const getStatement = async (req, res) => {
             jsonrpc: "2.0",
             id: req.body.id || null,
             error: {
-                code: -32400,
+                code: -31008,
                 message: {
-                    ru: "Ошибка сервера",
-                    uz: "Server xatosi",
+                    ru: "Ошибка на стороне сервера",
+                    uz: "Server tomonda xatolik",
                     en: "Server error",
                 },
-                data: null,
+                data: 'server',
             },
         });
     }
 };
-
 
 const cancelTransaction = async (req, res) => {
     const { id, reason } = req.body.params || {};
@@ -557,7 +570,6 @@ const cancelTransaction = async (req, res) => {
         });
     }
 };
-
 
 
 module.exports = { handlePaymeRequest };
