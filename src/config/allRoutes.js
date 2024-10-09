@@ -7,6 +7,7 @@ const authRoutes = require("../routes/authRoutes");
 const transactionRoutes = require("../routes/transRoutes");
 const compareRoutes = require("../routes/compareRoutes");
 const invoiceOrdersRoutes = require("../routes/invoiceOrdersRoutes")
+const uzumBankRoutes = require("../routes/uzumBankRoutes")
 
 module.exports = {
   invoiceOrdersRoutes,
@@ -18,4 +19,5 @@ module.exports = {
   orderRoutes,
   authRoutes,
   transactionRoutes,
+  uzumBankRoutes
 };
