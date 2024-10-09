@@ -65,7 +65,6 @@ const checkPerform = async (req, res) => {
         const course = await Courses.findById(account.course_id);
 
         if (!course) {
-            // Ошибка: Курс не найден
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
@@ -381,7 +380,7 @@ const getStatement = async (req, res) => {
                 jsonrpc: '2.0',
                 id: req.body.id || null,
                 error: {
-                    code: -31050,
+                    code: -32504,
                     message: {
                         ru: 'Параметры запроса неверны',
                         uz: 'So‘rov parametrlari noto‘g‘ri',
@@ -419,7 +418,6 @@ const getStatement = async (req, res) => {
         res.json({
             jsonrpc: "2.0",
             id: req.body.id || null,
-            code: -32504,
             result: {
                 transactions: formattedTransactions,
             },
