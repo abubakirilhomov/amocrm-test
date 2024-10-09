@@ -12,15 +12,15 @@ const checkTransaction = async (req, res) => {
   console.log("Received request in checkPerform:", req.body);
 
   if (!serviceId) {
-    return res.json({
+    return res.status(400).json({
       timestamp: timestamp,
       status: "FAILED",
       errorCode: "10006",
     });
   }
 
-  if (!params || !params?.courseId || !params?.amount) {
-    return res.json({
+  if (!params || !params.courseId || !params.amount) {
+    return res.status(400).json({
       serviceId: serviceId,
       timestamp: timestamp,
       status: "FAILED",
@@ -32,7 +32,7 @@ const checkTransaction = async (req, res) => {
     const course = (await Course.findById(params.courseId)) || null;
 
     if (!course || course?.price !== params.amount) {
-      return res.json({
+      return res.status(400).json({
         serviceId: serviceId,
         timestamp: timestamp,
         status: "FAILED",
@@ -40,7 +40,7 @@ const checkTransaction = async (req, res) => {
       });
     }
 
-    res.json({
+    res.status(200).json({
       serviceId: serviceId,
       timestamp: timestamp,
       status: "OK",
@@ -55,7 +55,7 @@ const checkTransaction = async (req, res) => {
     });
   } catch (error) {
     console.log("Received error: ", error);
-    res.json({
+    res.status(500).json({
       status: "FAILED",
       errorCode: "99999",
     });
@@ -66,7 +66,7 @@ const createTransaction = async (req, res) => {
   const { serviceId, timestamp, transId, params, amount } = req.body;
 
   if (!serviceId) {
-    return res.json({
+    return res.status(400).json({
       transId: transId,
       status: "FAILED",
       transTime: Date.now(),
@@ -75,7 +75,7 @@ const createTransaction = async (req, res) => {
   }
 
   if (!amount || !timestamp || !transId || !params) {
-    return res.json({
+    return res.status(400).json({
       transId: transId,
       status: "FAILED",
       transTime: Date.now(),
@@ -85,7 +85,7 @@ const createTransaction = async (req, res) => {
 
   if (!params.courseId) {
     console.error("Необходимые параметры отсутствуют в запросе:", req.body);
-    return res.json({
+    return res.status(400).json({
       serviceId: serviceId,
       transId: transId,
       status: "FAILED",
@@ -95,11 +95,11 @@ const createTransaction = async (req, res) => {
   }
 
   try {
-    let transaction = await Order.findOne({ transactionId: transId });
+    let transaction = await Order.findOne({ transactionId: transId }) || null;
     const course = (await Course.findById(params.courseId)) || null;
 
-    if (transaction || !transaction?.transactionId) {
-      return res.json({
+    if (transaction || transaction?.transactionId) {
+      return res.status(404).json({
         serviceId: serviceId,
         transId: transId,
         status: "FAILED",
@@ -109,7 +109,7 @@ const createTransaction = async (req, res) => {
     }
 
     if (!course) {
-      return res.json({
+      return res.status(404).json({
         serviceId: serviceId,
         timestamp: timestamp,
         status: "FAILED",
@@ -117,7 +117,7 @@ const createTransaction = async (req, res) => {
       });
     }
     if (course.price !== amount) {
-      return res.json({
+      return res.status(400).json({
         serviceId: serviceId,
         timestamp: timestamp,
         status: "FAILED",
@@ -131,17 +131,18 @@ const createTransaction = async (req, res) => {
       create_time: timestamp,
       amount: transformCashFromTiyinToSum(amount),
       course_id: course._id,
+      status: 'НЕ ОПЛАЧЕНО',
       clientName: params.clientName || "Не указано",
       clientPhone: params.clientPhone || "Не указано",
       clientAddress: params.clientAddress || "Не указано",
     });
+    
+    // await Invoice.findOneAndUpdate(
+    //   { invoiceNumber: newOrder.invoiceNumber },
+    //   { status: "ВЫСТАВЛЕНО" }
+    // );
 
-    await Invoice.findOneAndUpdate(
-      { invoiceNumber: transaction.invoiceNumber },
-      { status: "ВЫСТАВЛЕНО" }
-    );
-
-    res.json({
+    res.status(201).json({
       serviceId: serviceId,
       transId: transId,
       status: "CREATED",
@@ -158,7 +159,7 @@ const createTransaction = async (req, res) => {
     });
   } catch (error) {
     console.log("Received error: ", error);
-    res.json({
+    res.status(500).json({
       status: "FAILED",
       errorCode: "99999",
     });
@@ -176,7 +177,7 @@ const confirmTransaction = async (req, res) => {
   } = req.body;
 
   if ((!serviceId, !timestamp, !transId, !paymentSource)) {
-    return res.json({
+    return res.status(400).json({
       status: "FAILED",
       confirmTime: timestamp,
       errorCode: "10005",
@@ -186,7 +187,7 @@ const confirmTransaction = async (req, res) => {
     let order = (await Order.findOne({ transactionId: transId })) || null;
 
     if (!order || !order?.transactionId) {
-      return res.json({
+      return res.status(404).json({
         serviceId: serviceId,
         transId: transId,
         status: "FAILED",
@@ -196,7 +197,7 @@ const confirmTransaction = async (req, res) => {
     }
     switch (order.status) {
       case "ОТМЕНЕНО":
-        return res.json({
+        return res.status(400).json({
           serviceId: serviceId,
           transId: transId,
           status: "FAILED",
@@ -204,7 +205,7 @@ const confirmTransaction = async (req, res) => {
           errorCode: "10015",
         });
       case "ОПЛАЧЕНО":
-        return res.json({
+        return res.status(400).json({
           serviceId: serviceId,
           transId: transId,
           status: "FAILED",
@@ -217,12 +218,12 @@ const confirmTransaction = async (req, res) => {
     order.perform_time = Date.now();
     await order.save();
 
-    await Invoice.findOneAndUpdate(
-      { invoiceNumber: order.invoiceNumber },
-      { status: "ОПЛАЧЕНО" }
-    );
+    // await Invoice.findOneAndUpdate(
+    //   { invoiceNumber: order.invoiceNumber },
+    //   { status: "ОПЛАЧЕНО" }
+    // );
 
-    res.json({
+    res.status(200).json({
       serviceId: serviceId,
       transId: transId,
       status: "CONFIRMED",
@@ -235,11 +236,11 @@ const confirmTransaction = async (req, res) => {
           value: order.status,
         },
       },
-      amount: amount,
+      amount: `${order.amount}00`,
     });
   } catch (error) {
     console.log("Received error: ", error);
-    res.json({
+    res.status(500).json({
       status: "FAILED",
       errorCode: "99999",
     });
@@ -250,9 +251,7 @@ const reverseTransaction = async (req, res) => {
   const { serviceId, transId, timestamp } = req.body;
 
   if (!serviceId || !transId || !timestamp) {
-    return res.json({
-      serviceId: null,
-      transId: null,
+    return res.status(400).json({
       status: "FAILED",
       reverseTime: Date.now(),
       errorCode: "10005",
@@ -263,7 +262,7 @@ const reverseTransaction = async (req, res) => {
     let order = (await Order.findOne({ transactionId: transId })) || null;
 
     if (!order || !order?.transactionId) {
-      return res.json({
+      return res.status(404).json({
         serviceId: serviceId,
         transId: transId,
         status: "FAILED",
@@ -273,7 +272,7 @@ const reverseTransaction = async (req, res) => {
     }
     switch (order?.status) {
       case "ОТМЕНЕНО":
-        return res.json({
+        return res.status(400).json({
           serviceId: serviceId,
           transId: transId,
           status: "FAILED",
@@ -281,7 +280,7 @@ const reverseTransaction = async (req, res) => {
           errorCode: "10018",
         });
       case "ОПЛАЧЕНО":
-        return res.json({
+        return res.status(400).json({
           serviceId: serviceId,
           transId: transId,
           status: "FAILED",
@@ -291,13 +290,14 @@ const reverseTransaction = async (req, res) => {
     }
 
     order.status = "ОТМЕНЕНО";
+    order.save()
 
-    await Invoice.findOneAndUpdate(
-      { invoiceNumber: order.invoiceNumber },
-      { status: "ОТМЕНЕНО" }
-    );
+    // await Invoice.findOneAndUpdate(
+    //   { invoiceNumber: order.invoiceNumber },
+    //   { status: "ОТМЕНЕНО" }
+    // );
 
-    res.json({
+    res.status(200).json({
       serviceId: serviceId,
       transId: transId,
       status: "REVERSED",
@@ -310,11 +310,11 @@ const reverseTransaction = async (req, res) => {
           value: order.status,
         },
       },
-      amount: amount,
+      amount: `${order.amount}00`,
     });
   } catch (error) {
     console.log("Received error: ", error);
-    res.json({
+    res.status(500).json({
       status: "FAILED",
       errorCode: "99999",
     });
@@ -325,7 +325,7 @@ const checkTransactionStatus = async (req, res) => {
   const { serviceId, timestamp, transId } = req.body;
 
   if (!serviceId || !transId || !timestamp) {
-    return res.json({
+    return res.status(400).json({
       status: "FAILED",
       errorCode: "10005",
     });
@@ -335,7 +335,7 @@ const checkTransactionStatus = async (req, res) => {
     const order = (await Order.findOne({ transactionId: transId })) || null;
 
     if (!order || !order?.transactionId) {
-      return res.json({
+      return res.status(404).json({
         serviceId: serviceId,
         transId: transId,
         status: "FAILED",
@@ -346,7 +346,7 @@ const checkTransactionStatus = async (req, res) => {
       });
     }
 
-    res.json({
+    res.status(200).json({
       serviceId: serviceId,
       transId: order.transactionId,
       status: order.status,
@@ -362,11 +362,17 @@ const checkTransactionStatus = async (req, res) => {
     });
   } catch (error) {
     console.log("Received error: ", error);
-    res.json({
+    res.status(500).json({
       status: "FAILED",
       errorCode: "99999",
     });
   }
 };
 
-module.exports = {checkTransaction, createTransaction, confirmTransaction, reverseTransaction, checkTransactionStatus}
+module.exports = {
+  checkTransaction,
+  createTransaction,
+  confirmTransaction,
+  reverseTransaction,
+  checkTransactionStatus,
+};
