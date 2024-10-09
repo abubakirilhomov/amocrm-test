@@ -380,7 +380,7 @@ const getStatement = async (req, res) => {
                 jsonrpc: '2.0',
                 id: req.body.id || null,
                 error: {
-                    code: -32504,
+                    code: -31050,
                     message: {
                         ru: 'Параметры запроса неверны',
                         uz: 'So‘rov parametrlari noto‘g‘ri',
@@ -397,6 +397,22 @@ const getStatement = async (req, res) => {
                 $lte: to,
             },
         });
+
+        if (!transactions || transactions.length === 0) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id || null,
+                error: {
+                    code: -31003,
+                    message: {
+                        ru: 'Транзакция не найдена',
+                        uz: 'Tranzaksiya topilmadi',
+                        en: 'Transaction not found',
+                    },
+                    data: null,
+                },
+            });
+        }
 
         const formattedTransactions = transactions.map(transaction => ({
             id: transaction.transactionId.toString(),
@@ -428,18 +444,17 @@ const getStatement = async (req, res) => {
             jsonrpc: "2.0",
             id: req.body.id || null,
             error: {
-                code: -32400,
+                code: -31008,
                 message: {
-                    ru: "Ошибка сервера",
-                    uz: "Server xatosi",
+                    ru: "Ошибка на стороне сервера",
+                    uz: "Server tomonda xatolik",
                     en: "Server error",
                 },
-                data: null,
+                data: 'server',
             },
         });
     }
 };
-
 
 const cancelTransaction = async (req, res) => {
     const { id, reason } = req.body.params || {};
