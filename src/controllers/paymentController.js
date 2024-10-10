@@ -109,7 +109,7 @@ const checkPerform = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31008,
+                code: -31099,
                 message: {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
@@ -135,15 +135,52 @@ const createTransaction = async (req, res) => {
             error: {
                 code: -32504,
                 message: {
-                    ru: 'Параметры запроса неверны',
+                    ru: 'Неверные параметры запроса',
                     uz: 'So‘rov parametrlari noto‘g‘ri',
-                    en: 'Request parameters are invalid'
+                    en: 'Invalid request parameters'
                 },
                 data: 'params'
             }
         });
     }
+
     try {
+        const course = await Courses.findById(account.course_id);
+
+        if (!course) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Курс не найден',
+                        uz: 'Kurs topilmadi',
+                        en: 'Course not found'
+                    },
+                    data: 'course_id'
+                }
+            });
+        }
+
+        const coursePriceInTiyin = course.price * 100;
+
+        if (coursePriceInTiyin !== amount) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31001,
+                    message: {
+                        ru: 'Неверная сумма',
+                        uz: 'Noto‘g‘ri summa',
+                        en: 'Incorrect amount'
+                    },
+                    data: 'amount'
+                }
+            });
+        }
+
         let transaction = await Orders.findOne({ transactionId: id });
 
         if (transaction) {
@@ -168,7 +205,8 @@ const createTransaction = async (req, res) => {
             clientName: account.clientName || 'Не указано',
             clientPhone: account.clientPhone || 'Не указано',
             clientAddress: account.clientAddress || 'Не указано',
-            status: 'ВЫСТАВЛЕНО'
+            status: 'ВЫСТАВЛЕНО',
+            paymentType: "Payme"
         });
 
         await transaction.save();
@@ -180,7 +218,7 @@ const createTransaction = async (req, res) => {
 
         res.json({
             jsonrpc: '2.0',
-            id: req.body.id,    
+            id: req.body.id,
             result: {
                 create_time: transaction.create_time,
                 transaction: transaction.transactionId,
@@ -189,11 +227,11 @@ const createTransaction = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in createTransaction:', error);
-        res.status(500).json({
+        res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -31008,
+                code: -31099,
                 message: {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
@@ -204,6 +242,7 @@ const createTransaction = async (req, res) => {
         });
     }
 };
+
 
 
 const performTransaction = async (req, res) => {

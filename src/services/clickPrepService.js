@@ -9,9 +9,10 @@ exports.preparePayment = async ({ click_trans_id, service_id, merchant_trans_id,
 
         if (!course) {
             return { error: -2, error_note: 'Course not found' };
-        } else if (course.price !== amount) {
-            return { error: -2, error_note: 'Invalid amount' };
-        }
+        } 
+        // else if (course.price !== amount) {
+        //     return { error: -2, error_note: 'Invalid amount' };
+        // }
         console.log(sign_string, "prepservice")
         
         const expectedSignString = crypto
