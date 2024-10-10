@@ -137,7 +137,6 @@ const createTransaction = async (req, res) => {
       clientPhone: params.clientPhone || "Не указано",
       clientAddress: params.clientAddress || "Не указано",
     });
-
     // await Invoice.findOneAndUpdate(
     //   { invoiceNumber: newOrder.invoiceNumber },
     //   { status: "ВЫСТАВЛЕНО" }
