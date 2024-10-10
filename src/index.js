@@ -25,7 +25,7 @@ connectDB();
 
 const app = express();
 app.use(cors({
-  origin: ['http://localhost:3000', "https://test.paycom.uz", "https://"],
+  origin: ['http://localhost:3000', "https://test.paycom.uz", "https://", "https://norbekovgroup.vercel.app/"],
   methods: 'GET,POST',
   allowedHeaders: 'Content-Type, Authorization',
   credentials: true,
