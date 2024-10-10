@@ -194,7 +194,6 @@ const createTransaction = async (req, res) => {
                 }
             });
         }
-
         transaction = new Orders({
             transactionId: id,
             invoiceNumber: id,
