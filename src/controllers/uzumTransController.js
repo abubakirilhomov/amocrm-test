@@ -257,7 +257,6 @@ const reverseTransaction = async (req, res) => {
       errorCode: "10005",
     });
   }
-
   try {
     let order = (await Order.findOne({ transactionId: transId })) || null;
 
