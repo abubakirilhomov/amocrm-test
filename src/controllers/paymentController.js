@@ -163,8 +163,6 @@ const createTransaction = async (req, res) => {
             });
         }
 
-        const coursePriceInTiyin = course.price * 100;
-
         if (coursePriceInTiyin !== amount) {
             return res.json({
                 jsonrpc: '2.0',
