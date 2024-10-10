@@ -1,7 +1,6 @@
 const completeService = require('../services/clickCompleteService');
 const calculatedSign = require('../services/clickCompleteService')
 
-// Контроллер завершения платежа
 exports.completePayment = async (req, res) => {
     try {
         const {

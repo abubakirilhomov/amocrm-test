@@ -8,7 +8,6 @@ const orderSchema = new mongoose.Schema({
   },
   invoiceNumber: {
     type: String,
-    unique: true,
     required: false
   },
   create_time: {
@@ -23,7 +22,7 @@ const orderSchema = new mongoose.Schema({
   },
   state: {
     type: Number,
-    required: true
+    required: false
   },
   amount: {
     type: Number,
@@ -53,6 +52,10 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ['НЕ ОПЛАЧЕНО', 'ВЫСТАВЛЕНО', 'ОПЛАЧЕНО', 'ОТМЕНЕНО'],
     default: 'НЕ ОПЛАЧЕНО'
+  },
+  system: {
+    type: String,
+    enum: ['Click', 'Payme', 'Uzum Bank'],
   }
 });
 

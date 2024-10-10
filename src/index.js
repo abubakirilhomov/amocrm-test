@@ -3,6 +3,7 @@ const connectDB = require("./config/database");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const {
   clickCompleteRoutes,
@@ -31,6 +32,7 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
+
 app.use("/", paymentRoutes);
 app.use("/api/v1", courseRoutes);
 app.use("/api/v1", invoiceRoutes);
@@ -42,6 +44,7 @@ app.use("/api/v1/compare", compareRoutes);
 app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes)
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
