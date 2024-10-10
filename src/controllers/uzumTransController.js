@@ -19,7 +19,7 @@ const checkTransaction = async (req, res) => {
     });
   }
 
-  if (!params || !params.courseId || !params.amount) {
+  if (!params || !params.courseId || params.amount <= 0 || !params.amount) {
     return res.status(400).json({
       serviceId: serviceId,
       timestamp: timestamp,
@@ -132,11 +132,12 @@ const createTransaction = async (req, res) => {
       amount: transformCashFromTiyinToSum(amount),
       course_id: course._id,
       status: 'НЕ ОПЛАЧЕНО',
+      paymentType: "Uzum",
       clientName: params.clientName || "Не указано",
       clientPhone: params.clientPhone || "Не указано",
       clientAddress: params.clientAddress || "Не указано",
     });
-    
+
     // await Invoice.findOneAndUpdate(
     //   { invoiceNumber: newOrder.invoiceNumber },
     //   { status: "ВЫСТАВЛЕНО" }

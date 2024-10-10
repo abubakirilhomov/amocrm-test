@@ -53,6 +53,10 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ['НЕ ОПЛАЧЕНО', 'ВЫСТАВЛЕНО', 'ОПЛАЧЕНО', 'ОТМЕНЕНО'],
     default: 'НЕ ОПЛАЧЕНО'
+  },
+  paymentType: {
+    type: String,
+    enum: ["Payme", "Click", "Uzum"]
   }
 });
 

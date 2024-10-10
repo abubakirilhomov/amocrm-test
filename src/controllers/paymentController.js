@@ -133,7 +133,7 @@ const createTransaction = async (req, res) => {
             jsonrpc: '2.0',
             id: req.body.id || null,
             error: {
-                code: -32504, 
+                code: -32504,
                 message: {
                     ru: 'Неверные параметры запроса',
                     uz: 'So‘rov parametrlari noto‘g‘ri',
@@ -205,7 +205,8 @@ const createTransaction = async (req, res) => {
             clientName: account.clientName || 'Не указано',
             clientPhone: account.clientPhone || 'Не указано',
             clientAddress: account.clientAddress || 'Не указано',
-            status: 'ВЫСТАВЛЕНО'
+            status: 'ВЫСТАВЛЕНО',
+            paymentType: "Payme"
         });
 
         await transaction.save();
@@ -217,7 +218,7 @@ const createTransaction = async (req, res) => {
 
         res.json({
             jsonrpc: '2.0',
-            id: req.body.id,    
+            id: req.body.id,
             result: {
                 create_time: transaction.create_time,
                 transaction: transaction.transactionId,
