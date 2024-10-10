@@ -225,7 +225,7 @@ const createTransaction = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in createTransaction:', error);
+        console.error('Error in createTrans action:', error);
         res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,

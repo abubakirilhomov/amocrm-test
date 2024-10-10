@@ -11,18 +11,22 @@ async function getNextSequenceValue(sequenceName) {
     return sequenceDocument.sequence_value;
 }
 
+function formatInvoiceNumber(number) {
+    return 'U-' + String(number).padStart(5, '0');
+}
+
 const createInvoice = async (req, res) => {
-    const { clientName, clientAddress, clientPhone, email } = req.body;
+    const { clientName, clientAddress, clientPhone } = req.body;
 
     try {
-        const invoiceNumber = await getNextSequenceValue('invoiceNumber');
+        const sequenceNumber = await getNextSequenceValue('invoiceNumber');
+        const invoiceNumber = formatInvoiceNumber(sequenceNumber);
 
         const invoice = new Invoice({
             invoiceNumber,
             clientName,
             clientAddress,
             clientPhone,
-            email,
             status: 'НЕ ОПЛАЧЕНО'
         });
 
