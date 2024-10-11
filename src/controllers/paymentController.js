@@ -196,7 +196,7 @@ const createTransaction = async (req, res) => {
         }
         transaction = new Orders({
             transactionId: id,
-            invoiceNumber: id,
+            invoiceNumber: account.invoiceNumber,
             create_time: time,
             amount: amount,
             state: 1,
