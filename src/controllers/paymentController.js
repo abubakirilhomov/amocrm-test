@@ -182,7 +182,6 @@ const createTransaction = async (req, res) => {
         }
 
         let transaction = await Orders.findOne({ transactionId: id });
-        let invoiceNumber = await Invoice.findOne({ invoiceNumber: invoiceNumber })
 
         if (transaction) {
             return res.json({
@@ -197,7 +196,7 @@ const createTransaction = async (req, res) => {
         }
         transaction = new Orders({
             transactionId: id,
-            invoiceNumber: invoiceNumber,
+            invoiceNumber: id,
             create_time: time,
             amount: amount,
             state: 1,
