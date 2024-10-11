@@ -207,7 +207,6 @@ const createTransaction = async (req, res) => {
             status: 'ВЫСТАВЛЕНО',
             paymentType: "Payme"
         });
-
         await transaction.save();
 
         await Invoice.findOneAndUpdate(
