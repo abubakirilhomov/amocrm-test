@@ -12,7 +12,7 @@ async function getNextSequenceValue(sequenceName) {
 }
 
 function formatInvoiceNumber(number) {
-    return 'U-' + String(number).padStart(5, '0');
+    return 'U/' + String(number).padStart(5, '0');
 }
 
 const createInvoice = async (req, res) => {

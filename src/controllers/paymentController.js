@@ -127,8 +127,8 @@ const createTransaction = async (req, res) => {
 
     console.log('Received request in createTransaction:', req.body);
 
-    if (!account || !account.course_id || !id || !time) {
-        console.error('Необходимые параметры отсутствуют в запросе:', req.body);
+    if (!account || !account.course_id || !account.invoiceId || !id || !time) {
+        console.error('Required parameters are missing:', req.body);
         return res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
@@ -145,8 +145,25 @@ const createTransaction = async (req, res) => {
     }
 
     try {
-        const course = await Courses.findById(account.course_id);
+        // Fetch the invoice by its id
+        const invoice = await Invoice.findById(account.invoiceId);
+        if (!invoice) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Счет не найден',
+                        uz: 'Hisob topilmadi',
+                        en: 'Invoice not found'
+                    },
+                    data: 'invoiceId'
+                }
+            });
+        }
 
+        const course = await Courses.findById(account.course_id);
         if (!course) {
             return res.json({
                 jsonrpc: '2.0',
@@ -164,7 +181,6 @@ const createTransaction = async (req, res) => {
         }
 
         const coursePriceInTiyin = course.price * 100;
-
         if (coursePriceInTiyin !== amount) {
             return res.json({
                 jsonrpc: '2.0',
@@ -181,8 +197,8 @@ const createTransaction = async (req, res) => {
             });
         }
 
+        // Check if the transaction already exists
         let transaction = await Orders.findOne({ transactionId: id });
-
         if (transaction) {
             return res.json({
                 jsonrpc: '2.0',
@@ -194,9 +210,11 @@ const createTransaction = async (req, res) => {
                 }
             });
         }
+
+        // Create a new order using the invoiceNumber from the fetched invoice
         transaction = new Orders({
             transactionId: id,
-            invoiceNumber: id,
+            invoiceNumber: invoice.invoiceNumber, // Use the invoiceNumber from the fetched invoice
             create_time: time,
             amount: amount,
             state: 1,
@@ -210,10 +228,8 @@ const createTransaction = async (req, res) => {
 
         await transaction.save();
 
-        await Invoice.findOneAndUpdate(
-            { invoiceNumber: transaction.invoiceNumber },
-            { status: 'ВЫСТАВЛЕНО' }
-        );
+        // Update the invoice status to 'ВЫСТАВЛЕНО'
+        await Invoice.findByIdAndUpdate(account.invoiceId, { status: 'ВЫСТАВЛЕНО' });
 
         res.json({
             jsonrpc: '2.0',
@@ -225,7 +241,7 @@ const createTransaction = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in createTrans action:', error);
+        console.error('Error in createTransaction:', error);
         res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
