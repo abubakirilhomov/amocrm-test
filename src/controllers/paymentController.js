@@ -180,7 +180,6 @@ const createTransaction = async (req, res) => {
                 }
             });
         }
-
         let transaction = await Orders.findOne({ transactionId: id });
 
         if (transaction) {
