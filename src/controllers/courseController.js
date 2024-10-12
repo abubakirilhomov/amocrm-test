@@ -10,13 +10,14 @@ const getCourses = async (req, res) => {
 };
 
 const createCourse = async (req, res) => {
-    const { title, description, price, route } = req.body;
+    const { title, description, price, route, prefix } = req.body;
 
     const course = new Course({
         title,
         description,
         price,
         route,
+        prefix
     });
 
     try {
