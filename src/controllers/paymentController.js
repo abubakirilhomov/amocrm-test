@@ -235,7 +235,7 @@ const createTransaction = async (req, res) => {
         }
         transaction = new Orders({
             transactionId: id,
-            invoiceNumber: invoiceNumber,
+            invoiceNumber: id,
             tgUsername: tgUsername,
             passport: passport,
             create_time: time,
