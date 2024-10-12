@@ -146,7 +146,6 @@ const createTransaction = async (req, res) => {
 
     try {
         const course = await Courses.findById(account.course_id);
-
         if (!course) {
             return res.json({
                 jsonrpc: '2.0',
@@ -159,6 +158,40 @@ const createTransaction = async (req, res) => {
                         en: 'Course not found'
                     },
                     data: 'course_id'
+                }
+            });
+        }
+
+        const invoiceNumber = account.invoiceNumber
+        if (!invoiceNumber) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Номер счета отсутствует',
+                        uz: 'Hisob raqami mavjud emas',
+                        en: 'Invoice number is missing'
+                    },
+                    data: 'invoiceNumber'
+                }
+            });
+        }
+
+        const invoice = await Invoice.findOne({ invoiceNumber });
+        if (!invoice) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Счет не найден',
+                        uz: 'Hisob topilmadi',
+                        en: 'Invoice not found'
+                    },
+                    data: 'invoiceNumber'
                 }
             });
         }
@@ -195,7 +228,7 @@ const createTransaction = async (req, res) => {
         }
         transaction = new Orders({
             transactionId: id,
-            invoiceNumber: id,
+            invoiceNumber: invoiceNumber,
             create_time: time,
             amount: amount,
             state: 1,
