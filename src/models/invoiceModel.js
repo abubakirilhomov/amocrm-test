@@ -19,6 +19,14 @@ const invoiceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  tgUsername: {
+    type: String,
+    required: false
+  },
+  passport: {
+    type: String,
+    required: true
+  },
   status: {
     type: String,
     enum: ["НЕ ОПЛАЧЕНО", "ВЫСТАВЛЕНО", "ОПЛАЧЕНО", "ОТМЕНЕНО"],
