@@ -201,7 +201,7 @@ const createTransaction = async (req, res) => {
 
         const passport = account.passport
         const pt = await Invoice.findOne({ passport })
-        
+
         const prefix = account.prefix
         const courseTitle = account.courseTitle
 
@@ -297,10 +297,10 @@ const performTransaction = async (req, res) => {
                 message: {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
-                    en: 'Transaction ID is missing'
+                    en: 'Transaction ID is missing',
                 },
-                data: 'id'
-            }
+                data: 'id',
+            },
         });
     }
 
@@ -316,10 +316,10 @@ const performTransaction = async (req, res) => {
                     message: {
                         ru: 'Транзакция не найдена',
                         uz: 'Tranzaksiya topilmadi',
-                        en: 'Transaction not found'
+                        en: 'Transaction not found',
                     },
-                    data: 'id'
-                }
+                    data: 'id',
+                },
             });
         }
 
@@ -331,8 +331,8 @@ const performTransaction = async (req, res) => {
                     transaction: transaction.transactionId,
                     perform_time: transaction.perform_time,
                     state: transaction.state,
-                    status: transaction.status
-                }
+                    status: transaction.status,
+                },
             });
         }
 
@@ -340,6 +340,11 @@ const performTransaction = async (req, res) => {
         transaction.perform_time = Date.now();
         transaction.status = 'ОПЛАЧЕНО';
         await transaction.save();
+
+        await Orders.findOneAndUpdate(
+            { invoiceNumber: transaction.invoiceNumber },
+            { status: 'ОПЛАЧЕНО' }
+        );
 
         await Invoice.findOneAndUpdate(
             { invoiceNumber: transaction.invoiceNumber },
@@ -353,8 +358,8 @@ const performTransaction = async (req, res) => {
                 transaction: transaction.transactionId,
                 perform_time: transaction.perform_time,
                 state: transaction.state,
-                status: transaction.status
-            }
+                status: transaction.status,
+            },
         });
     } catch (error) {
         console.error('Error in performTransaction:', error);
@@ -366,13 +371,14 @@ const performTransaction = async (req, res) => {
                 message: {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
-                    en: 'Server error'
+                    en: 'Server error',
                 },
-                data: 'server'
-            }
+                data: 'server',
+            },
         });
     }
 };
+
 
 
 
@@ -547,10 +553,10 @@ const cancelTransaction = async (req, res) => {
                 message: {
                     ru: 'Идентификатор транзакции отсутствует',
                     uz: 'Tranzaksiya identifikatori mavjud emas',
-                    en: 'Transaction ID is missing'
+                    en: 'Transaction ID is missing',
                 },
-                data: 'id'
-            }
+                data: 'id',
+            },
         });
     }
 
@@ -566,10 +572,10 @@ const cancelTransaction = async (req, res) => {
                     message: {
                         ru: 'Транзакция не найдена',
                         uz: 'Tranzaksiya topilmadi',
-                        en: 'Transaction not found'
+                        en: 'Transaction not found',
                     },
-                    data: 'id'
-                }
+                    data: 'id',
+                },
             });
         }
 
@@ -579,6 +585,12 @@ const cancelTransaction = async (req, res) => {
             transaction.reason = reason || null;
             transaction.status = 'ОТМЕНЕНО';
             await transaction.save();
+
+            // Update the order's status
+            await Orders.findOneAndUpdate(
+                { invoiceNumber: transaction.invoiceNumber },
+                { status: 'ОТМЕНЕНО' }
+            );
 
             await Invoice.findOneAndUpdate(
                 { invoiceNumber: transaction.invoiceNumber },
@@ -591,6 +603,12 @@ const cancelTransaction = async (req, res) => {
             transaction.status = 'ОТМЕНЕНО';
             await transaction.save();
 
+            // Update the order's status
+            await Orders.findOneAndUpdate(
+                { invoiceNumber: transaction.invoiceNumber },
+                { status: 'ОТМЕНЕНО' }
+            );
+
             await Invoice.findOneAndUpdate(
                 { invoiceNumber: transaction.invoiceNumber },
                 { status: 'ОТМЕНЕНО' }
@@ -602,8 +620,8 @@ const cancelTransaction = async (req, res) => {
                 result: {
                     transaction: transaction.transactionId,
                     cancel_time: transaction.cancel_time,
-                    state: transaction.state
-                }
+                    state: transaction.state,
+                },
             });
         } else {
             return res.json({
@@ -614,10 +632,10 @@ const cancelTransaction = async (req, res) => {
                     message: {
                         ru: 'Неверное состояние транзакции',
                         uz: 'Noto‘g‘ri tranzaksiya holati',
-                        en: 'Invalid transaction state'
+                        en: 'Invalid transaction state',
                     },
-                    data: 'state'
-                }
+                    data: 'state',
+                },
             });
         }
 
@@ -627,8 +645,8 @@ const cancelTransaction = async (req, res) => {
             result: {
                 transaction: transaction.transactionId,
                 cancel_time: transaction.cancel_time,
-                state: transaction.state
-            }
+                state: transaction.state,
+            },
         });
     } catch (error) {
         console.error('Error in cancelTransaction:', error);
@@ -640,13 +658,14 @@ const cancelTransaction = async (req, res) => {
                 message: {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
-                    en: 'Server error'
+                    en: 'Server error',
                 },
-                data: 'server'
-            }
+                data: 'server',
+            },
         });
     }
 };
+
 
 
 module.exports = { handlePaymeRequest };
