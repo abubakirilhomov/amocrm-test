@@ -2,12 +2,14 @@ const Order = require("../models/orderModel");
 const Course = require("../models/courseModel");
 const Invoice = require("../models/invoiceModel");
 
+const realServiceId = 498614016
+
 const checkTransaction = async (req, res) => {
   const { serviceId, timestamp, params } = req.body;
 
   console.log("Received request in checkPerform:", req.body);
 
-  if (!serviceId) {
+  if (!serviceId || serviceId !== realServiceId) {
     return res.status(400).json({
       timestamp: timestamp,
       status: "FAILED",
@@ -89,7 +91,7 @@ const checkTransaction = async (req, res) => {
 const createTransaction = async (req, res) => {
   const { serviceId, timestamp, transId, params, amount } = req.body;
 
-  if (!serviceId) {
+  if (!serviceId || serviceId !== realServiceId) {
     return res.status(400).json({
       transId: transId,
       status: "FAILED",
@@ -109,12 +111,14 @@ const createTransaction = async (req, res) => {
 
   if (
     !params.courseId ||
+    !params.invoiceNumber ||
     !String(params.amount) ||
     !params.clientName ||
     !params.clientAddress ||
     !params.clientPhone ||
-    !params.passport ||
-    !params.invoiceNumber
+    !params.passport
+    // !params.courseTitle ||
+    // !params.prefix
   ) {
     console.error("Необходимые параметры отсутствуют в запросе:", req.body);
     return res.status(400).json({
@@ -170,6 +174,8 @@ const createTransaction = async (req, res) => {
       clientAddress: params.clientAddress || "Не указано",
       tgUsername: params.tgUsername || "Не указано",
       passport: params.passport || "Не указано",
+      // prefix: params.prefix,
+      // courseTitle: params.courseTitle,
     });
     await Invoice.findOneAndUpdate(
       { invoiceNumber: newOrder.invoiceNumber },
@@ -220,7 +226,7 @@ const createTransaction = async (req, res) => {
 const confirmTransaction = async (req, res) => {
   const { serviceId, timestamp, transId, paymentSource } = req.body;
 
-  if ((!serviceId, !timestamp, !transId, !paymentSource)) {
+  if ((!serviceId || !timestamp || !transId || !paymentSource)) {
     return res.status(400).json({
       status: "FAILED",
       confirmTime: timestamp,

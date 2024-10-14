@@ -201,7 +201,9 @@ const createTransaction = async (req, res) => {
 
         const passport = account.passport
         const pt = await Invoice.findOne({ passport })
-
+        
+        const prefix = account.prefix
+        const courseTitle = account.courseTitle
 
         const coursePriceInTiyin = course.price * 100;
 
@@ -238,6 +240,8 @@ const createTransaction = async (req, res) => {
             invoiceNumber: invoiceNumber,
             tgUsername: tgUsername,
             passport: passport,
+            prefix: prefix,
+            courseTitle: courseTitle,
             create_time: time,
             amount: amount,
             state: 1,
