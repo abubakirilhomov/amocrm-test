@@ -162,45 +162,45 @@ const createTransaction = async (req, res) => {
             });
         }
 
-        // const invoiceNumber = account.invoiceNumber
-        // if (!invoiceNumber) {
-        //     return res.json({
-        //         jsonrpc: '2.0',
-        //         id: req.body.id,
-        //         error: {
-        //             code: -31050,
-        //             message: {
-        //                 ru: 'Номер счета отсутствует',
-        //                 uz: 'Hisob raqami mavjud emas',
-        //                 en: 'Invoice number is missing'
-        //             },
-        //             data: 'invoiceNumber'
-        //         }
-        //     });
-        // }
+        const invoiceNumber = account.invoiceNumber
+        if (!invoiceNumber) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Номер счета отсутствует',
+                        uz: 'Hisob raqami mavjud emas',
+                        en: 'Invoice number is missing'
+                    },
+                    data: 'invoiceNumber'
+                }
+            });
+        }
 
-        // const invoice = await Invoice.findOne({ invoiceNumber });
-        // if (!invoice) {
-        //     return res.json({
-        //         jsonrpc: '2.0',
-        //         id: req.body.id,
-        //         error: {
-        //             code: -31050,
-        //             message: {
-        //                 ru: 'Счет не найден',
-        //                 uz: 'Hisob topilmadi',
-        //                 en: 'Invoice not found'
-        //             },
-        //             data: 'invoiceNumber'
-        //         }
-        //     });
-        // }
+        const invoice = await Invoice.findOne({ invoiceNumber });
+        if (!invoice) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Счет не найден',
+                        uz: 'Hisob topilmadi',
+                        en: 'Invoice not found'
+                    },
+                    data: 'invoiceNumber'
+                }
+            });
+        }
 
-        // const tgUsername = account.tgUsername
-        // const tg = await Invoice.findOne({ tgUsername });
+        const tgUsername = account.tgUsername
+        const tg = await Invoice.findOne({ tgUsername });
 
-        // const passport = account.passport
-        // const pt = await Invoice.findOne({ passport })
+        const passport = account.passport
+        const pt = await Invoice.findOne({ passport })
 
 
         const coursePriceInTiyin = course.price * 100;
@@ -235,7 +235,9 @@ const createTransaction = async (req, res) => {
         }
         transaction = new Orders({
             transactionId: id,
-            invoiceNumber: id,
+            invoiceNumber: invoiceNumber,
+            tgUsername: tgUsername,
+            passport: passport,
             create_time: time,
             amount: amount,
             state: 1,
@@ -247,11 +249,6 @@ const createTransaction = async (req, res) => {
             paymentType: "Payme"
         });
         await transaction.save();
-
-        await Invoice.findOneAndUpdate(
-            { invoiceNumber: transaction.invoiceNumber },
-            { status: 'ВЫСТАВЛЕНО' }
-        );
 
         res.json({
             jsonrpc: '2.0',
