@@ -33,6 +33,10 @@ const orderSchema = new mongoose.Schema({
     ref: 'Course',
     required: false
   },
+  courseTitle: {
+    type: String,
+    required: false
+  },
   clientName: {
     type: String,
     required: false
