@@ -42,10 +42,6 @@ const createOrder = async (req, res) => {
       status
     } = req.body;
 
-    if (!transactionId || !create_time || !state || !amount || !course_id || !user_id) {
-      return res.status(400).json({ message: "All required fields must be provided" });
-    }
-
     const newOrder = new Order({
       transactionId,
       invoiceNumber,
