@@ -128,7 +128,7 @@ const createTransaction = async (req, res) => {
     console.log('Received request in createTransaction:', req.body);
 
     if (!account || !account.course_id || !id || !time) {
-        console.error('Необходимые параметры отсутствуют в запросе:', req.body);
+        console.error('Required parameters are missing in the request:', req.body);
         return res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
@@ -137,10 +137,10 @@ const createTransaction = async (req, res) => {
                 message: {
                     ru: 'Неверные параметры запроса',
                     uz: 'So‘rov parametrlari noto‘g‘ri',
-                    en: 'Invalid request parameters'
+                    en: 'Invalid request parameters',
                 },
-                data: 'params'
-            }
+                data: 'params',
+            },
         });
     }
 
@@ -155,14 +155,14 @@ const createTransaction = async (req, res) => {
                     message: {
                         ru: 'Курс не найден',
                         uz: 'Kurs topilmadi',
-                        en: 'Course not found'
+                        en: 'Course not found',
                     },
-                    data: 'course_id'
-                }
+                    data: 'course_id',
+                },
             });
         }
 
-        const invoiceNumber = account.invoiceNumber
+        const invoiceNumber = account.invoiceNumber;
         if (!invoiceNumber) {
             return res.json({
                 jsonrpc: '2.0',
@@ -172,10 +172,10 @@ const createTransaction = async (req, res) => {
                     message: {
                         ru: 'Номер счета отсутствует',
                         uz: 'Hisob raqami mavjud emas',
-                        en: 'Invoice number is missing'
+                        en: 'Invoice number is missing',
                     },
-                    data: 'invoiceNumber'
-                }
+                    data: 'invoiceNumber',
+                },
             });
         }
 
@@ -189,21 +189,12 @@ const createTransaction = async (req, res) => {
                     message: {
                         ru: 'Счет не найден',
                         uz: 'Hisob topilmadi',
-                        en: 'Invoice not found'
+                        en: 'Invoice not found',
                     },
-                    data: 'invoiceNumber'
-                }
+                    data: 'invoiceNumber',
+                },
             });
         }
-
-        const tgUsername = account.tgUsername
-        const tg = await Invoice.findOne({ tgUsername });
-
-        const passport = account.passport
-        const pt = await Invoice.findOne({ passport })
-
-        const prefix = account.prefix
-        const courseTitle = account.courseTitle
 
         const coursePriceInTiyin = course.price * 100;
 
@@ -216,12 +207,13 @@ const createTransaction = async (req, res) => {
                     message: {
                         ru: 'Неверная сумма',
                         uz: 'Noto‘g‘ri summa',
-                        en: 'Incorrect amount'
+                        en: 'Incorrect amount',
                     },
-                    data: 'amount'
-                }
+                    data: 'amount',
+                },
             });
         }
+
         let transaction = await Orders.findOne({ transactionId: id });
 
         if (transaction) {
@@ -231,40 +223,66 @@ const createTransaction = async (req, res) => {
                 result: {
                     create_time: transaction.create_time,
                     transaction: transaction.transactionId,
-                    state: transaction.state
-                }
+                    state: transaction.state,
+                },
             });
         }
-        transaction = new Orders({
-            transactionId: id,
-            invoiceNumber: invoiceNumber,
-            tgUsername: tgUsername,
-            passport: passport,
-            prefix: prefix,
-            courseTitle: courseTitle,
-            create_time: time,
-            amount: amount,
-            state: 1,
-            course_id: account.course_id,
-            clientName: account.clientName || 'Не указано',
-            clientPhone: account.clientPhone || 'Не указано',
-            clientAddress: account.clientAddress || 'Не указано',
-            status: 'ВЫСТАВЛЕНО',
-            paymentType: "Payme"
-        });
-        await transaction.save();
+
+        let order = await Orders.findOne({ invoiceNumber });
+
+        if (!order) {
+            return res.json({
+                jsonrpc: '2.0',
+                id: req.body.id,
+                error: {
+                    code: -31050,
+                    message: {
+                        ru: 'Заказ не найден',
+                        uz: 'Buyurtma topilmadi',
+                        en: 'Order not found',
+                    },
+                    data: 'invoiceNumber',
+                },
+            });
+        }
+
+        order.transactionId = id;
+        order.create_time = time;
+        order.amount = amount;
+        order.state = 1; 
+        order.course_id = account.course_id;
+        order.clientName = account.clientName || order.clientName;
+        order.clientPhone = account.clientPhone || order.clientPhone;
+        order.clientAddress = account.clientAddress || order.clientAddress;
+        order.status = 'ВЫСТАВЛЕНО';
+        order.paymentType = 'Payme';
+
+        if (account.tgUsername) {
+            order.tgUsername = account.tgUsername;
+        }
+        if (account.passport) {
+            order.passport = account.passport;
+        }
+        if (account.prefix) {
+            order.prefix = account.prefix;
+        }
+        if (account.courseTitle) {
+            order.courseTitle = account.courseTitle;
+        }
+
+        await order.save();
 
         res.json({
             jsonrpc: '2.0',
             id: req.body.id,
             result: {
-                create_time: transaction.create_time,
-                transaction: transaction.transactionId,
-                state: transaction.state
-            }
+                create_time: order.create_time,
+                transaction: order.transactionId,
+                state: order.state,
+            },
         });
     } catch (error) {
-        console.error('Error in createTrans action:', error);
+        console.error('Error in createTransaction:', error);
         res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
@@ -273,13 +291,14 @@ const createTransaction = async (req, res) => {
                 message: {
                     ru: 'Ошибка на стороне сервера',
                     uz: 'Server tomonda xatolik',
-                    en: 'Server error'
+                    en: 'Server error',
                 },
-                data: 'server'
-            }
+                data: 'server',
+            },
         });
     }
 };
+
 
 
 
