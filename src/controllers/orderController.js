@@ -39,7 +39,11 @@ const createOrder = async (req, res) => {
       clientPhone,
       clientAddress,
       invoiceNumber,
-      status
+      status,
+      passport,
+      tgUsername,
+      courseTitle,
+      prefix
     } = req.body;
 
     const newOrder = new Order({
@@ -55,6 +59,10 @@ const createOrder = async (req, res) => {
       clientName,
       clientPhone,
       clientAddress,
+      passport,
+      tgUsername,
+      prefix,
+      courseTitle,
       reason: null,
       status: status || 'НЕ ОПЛАЧЕНО'
     });
