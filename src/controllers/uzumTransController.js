@@ -2,16 +2,14 @@ const Order = require("../models/orderModel");
 const Course = require("../models/courseModel");
 const Invoice = require("../models/invoiceModel");
 
-const transformCashFromTiyinToSum = (amount) => {
-  return Number(String(amount).slice(0, -2));
-};
+const realServiceId = 498614016
 
 const checkTransaction = async (req, res) => {
   const { serviceId, timestamp, params } = req.body;
 
   console.log("Received request in checkPerform:", req.body);
 
-  if (!serviceId) {
+  if (!serviceId || serviceId !== realServiceId) {
     return res.status(400).json({
       timestamp: timestamp,
       status: "FAILED",
@@ -19,7 +17,17 @@ const checkTransaction = async (req, res) => {
     });
   }
 
-  if (!params || !params.courseId || params.amount <= 0 || !params.amount) {
+  if (
+    !params ||
+    !params.courseId ||
+    !String(params.amount) ||
+    params.amount < 0 ||
+    !params.clientName ||
+    !params.clientAddress ||
+    !params.clientPhone ||
+    !params.passport ||
+    !params.invoiceNumber
+  ) {
     return res.status(400).json({
       serviceId: serviceId,
       timestamp: timestamp,
@@ -48,8 +56,26 @@ const checkTransaction = async (req, res) => {
         courseId: {
           value: course._id,
         },
-        price: {
-          value: course.price,
+        invoiceNumber: {
+          value: params.invoiceNumber,
+        },
+        amount: {
+          value: params.amount,
+        },
+        clientName: {
+          value: params.clientName,
+        },
+        clientAddress: {
+          value: params.clientAddress,
+        },
+        clientPhone: {
+          value: params.clientPhone,
+        },
+        passport: {
+          value: params.passport,
+        },
+        tgUsername: {
+          value: params.tgUsername,
         },
       },
     });
@@ -65,7 +91,7 @@ const checkTransaction = async (req, res) => {
 const createTransaction = async (req, res) => {
   const { serviceId, timestamp, transId, params, amount } = req.body;
 
-  if (!serviceId) {
+  if (!serviceId || serviceId !== realServiceId) {
     return res.status(400).json({
       transId: transId,
       status: "FAILED",
@@ -83,7 +109,17 @@ const createTransaction = async (req, res) => {
     });
   }
 
-  if (!params.courseId) {
+  if (
+    !params.courseId ||
+    !params.invoiceNumber ||
+    !String(params.amount) ||
+    !params.clientName ||
+    !params.clientAddress ||
+    !params.clientPhone ||
+    !params.passport
+    // !params.courseTitle ||
+    // !params.prefix
+  ) {
     console.error("Необходимые параметры отсутствуют в запросе:", req.body);
     return res.status(400).json({
       serviceId: serviceId,
@@ -95,7 +131,7 @@ const createTransaction = async (req, res) => {
   }
 
   try {
-    let transaction = await Order.findOne({ transactionId: transId }) || null;
+    let transaction = (await Order.findOne({ transactionId: transId })) || null;
     const course = (await Course.findById(params.courseId)) || null;
 
     if (transaction || transaction?.transactionId) {
@@ -116,7 +152,7 @@ const createTransaction = async (req, res) => {
         errorCode: "10002",
       });
     }
-    if (course.price !== amount) {
+    if (course.price * 100 !== amount) {
       return res.status(400).json({
         serviceId: serviceId,
         timestamp: timestamp,
@@ -125,34 +161,55 @@ const createTransaction = async (req, res) => {
       });
     }
 
-    const newOrder = Order.create({
+    const newOrder = await Order.create({
       transactionId: transId,
-      invoiceNumber: transId,
+      invoiceNumber: params.invoiceNumber,
       create_time: timestamp,
-      amount: transformCashFromTiyinToSum(amount),
+      amount: amount,
       course_id: course._id,
-      status: 'НЕ ОПЛАЧЕНО',
+      status: "ВЫСТАВЛЕНО",
       paymentType: "Uzum",
       clientName: params.clientName || "Не указано",
       clientPhone: params.clientPhone || "Не указано",
       clientAddress: params.clientAddress || "Не указано",
+      tgUsername: params.tgUsername || "Не указано",
+      passport: params.passport || "Не указано",
+      // prefix: params.prefix,
+      // courseTitle: params.courseTitle,
     });
-    // await Invoice.findOneAndUpdate(
-    //   { invoiceNumber: newOrder.invoiceNumber },
-    //   { status: "ВЫСТАВЛЕНО" }
-    // );
+    await Invoice.findOneAndUpdate(
+      { invoiceNumber: newOrder.invoiceNumber },
+      { status: "ВЫСТАВЛЕНО" }
+    );
+    console.log(newOrder);
+    
 
     res.status(201).json({
       serviceId: serviceId,
       transId: transId,
       status: "CREATED",
-      transTime: 1698361458054,
+      transTime: Date.now(),
       data: {
         courseId: {
           value: course._id,
         },
-        status: {
-          value: newOrder.status,
+        invoiceNumber: {
+          value: newOrder.invoiceNumber,
+        },
+        clientName: {
+          value: newOrder.clientName,
+        },
+        clientAddress: {
+          value: newOrder.clientAddress,
+        },
+        clientPhone: {
+          value: newOrder.clientPhone,
+        },
+        passport: {
+          value: newOrder.passport,
+        },
+        tgUsername: {
+          value: newOrder.tgUsername,
         },
       },
       amount: amount,
@@ -167,16 +224,9 @@ const createTransaction = async (req, res) => {
 };
 
 const confirmTransaction = async (req, res) => {
-  const {
-    serviceId,
-    timestamp,
-    transId,
-    paymentSource,
-    tariff,
-    processingReferenceNumber,
-  } = req.body;
+  const { serviceId, timestamp, transId, paymentSource } = req.body;
 
-  if ((!serviceId, !timestamp, !transId, !paymentSource)) {
+  if ((!serviceId || !timestamp || !transId || !paymentSource)) {
     return res.status(400).json({
       status: "FAILED",
       confirmTime: timestamp,
@@ -218,10 +268,10 @@ const confirmTransaction = async (req, res) => {
     order.perform_time = Date.now();
     await order.save();
 
-    // await Invoice.findOneAndUpdate(
-    //   { invoiceNumber: order.invoiceNumber },
-    //   { status: "ОПЛАЧЕНО" }
-    // );
+    await Invoice.findOneAndUpdate(
+      { invoiceNumber: order.invoiceNumber },
+      { status: "ОПЛАЧЕНО" }
+    );
 
     res.status(200).json({
       serviceId: serviceId,
@@ -232,11 +282,26 @@ const confirmTransaction = async (req, res) => {
         courseId: {
           value: order.course_id,
         },
-        status: {
-          value: order.status,
+        invoiceNumber: {
+          value: order.invoiceNumber,
+        },
+        clientName: {
+          value: order.clientName,
+        },
+        clientAddress: {
+          value: order.clientAddress,
+        },
+        clientPhone: {
+          value: order.clientPhone,
+        },
+        passport: {
+          value: order.passport,
+        },
+        tgUsername: {
+          value: order.tgUsername,
         },
       },
-      amount: `${order.amount}00`,
+      amount: order.amount,
     });
   } catch (error) {
     console.log("Received error: ", error);
@@ -289,12 +354,13 @@ const reverseTransaction = async (req, res) => {
     }
 
     order.status = "ОТМЕНЕНО";
-    order.save()
+    order.reverseTime = Date.now();
+    order.save();
 
-    // await Invoice.findOneAndUpdate(
-    //   { invoiceNumber: order.invoiceNumber },
-    //   { status: "ОТМЕНЕНО" }
-    // );
+    await Invoice.findOneAndUpdate(
+      { invoiceNumber: order.invoiceNumber },
+      { status: "ОТМЕНЕНО" }
+    );
 
     res.status(200).json({
       serviceId: serviceId,
@@ -305,11 +371,26 @@ const reverseTransaction = async (req, res) => {
         courseId: {
           value: order.course_id,
         },
-        status: {
-          value: order.status,
+        invoiceNumber: {
+          value: order.invoiceNumber,
+        },
+        clientName: {
+          value: order.clientName,
+        },
+        clientAddress: {
+          value: order.clientAddress,
+        },
+        clientPhone: {
+          value: order.clientPhone,
+        },
+        passport: {
+          value: order.passport,
+        },
+        tgUsername: {
+          value: order.tgUsername,
         },
       },
-      amount: `${order.amount}00`,
+      amount: order.amount,
     });
   } catch (error) {
     console.log("Received error: ", error);
@@ -356,8 +437,26 @@ const checkTransactionStatus = async (req, res) => {
         courseId: {
           value: order.course_id,
         },
+        invoiceNumber: {
+          value: order.invoiceNumber,
+        },
+        clientName: {
+          value: order.clientName,
+        },
+        clientAddress: {
+          value: order.clientAddress,
+        },
+        clientPhone: {
+          value: order.clientPhone,
+        },
+        passport: {
+          value: order.passport,
+        },
+        tgUsername: {
+          value: order.tgUsername,
+        },
       },
-      amount: `${order.amount}00`,
+      amount: order.amount,
     });
   } catch (error) {
     console.log("Received error: ", error);
