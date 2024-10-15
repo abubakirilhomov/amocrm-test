@@ -26,7 +26,7 @@ connectDB();
 
 const app = express();
 app.use(cors({
-  origin: ['http://localhost:3000', "https://test.paycom.uz", "https://", "https://norbekovgroup.vercel.app", "http://174.138.43.233:3000", "http://174.138.43.233:3001", "https://markaz.norbekovgroup.uz", "https://forum.norbekovgroup.uz", "https://billing.norbekovgroup.uz"],
+  origin: ['http://localhost:3000', "https://test.paycom.uz", "https://", "https://norbekovgroup.vercel.app", "http://174.138.43.233:3000", "http://174.138.43.233:3001", "https://markaz.norbekovgroup.uz", "https://forum.norbekovgroup.uz", "https://billing.norbekovgroup.uz", "https://217.29.119.130", "https://217.29.119.131", "https://217.29.119.132", "https://217.29.119.133"],
   methods: 'GET,POST',
   allowedHeaders: 'Content-Type, Authorization',
   credentials: true,
