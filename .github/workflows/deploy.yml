@@ -28,9 +28,9 @@ jobs:
 
       - name: Deploy to server
         run: |
-         ssh -o StrictHostKeyChecking=no root@norbekovgroup.uz <<EOF
-            cd /var/www/course-server
-            git pull origin main
-            npm install
+          ssh -o StrictHostKeyChecking=no root@norbekovgroup.uz "
+            cd /var/www/course-server &&
+            git pull origin main &&
+            npm install &&
             pm2 restart all
-          EOF
+          "
