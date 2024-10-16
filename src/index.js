@@ -1,3 +1,4 @@
+// TEST CI/CD
 const express = require("express");
 const connectDB = require("./config/database");
 const dotenv = require("dotenv");
@@ -55,7 +56,6 @@ app.use(
   })
 );
 app.use(bodyParser.json());
-
 app.use("/", paymentRoutes);
 app.use("/api/v1/uzum-bank", uzumAuthMiddleware, uzumBankRoutes);
 app.use("/api/v1", courseRoutes);
