@@ -25,7 +25,6 @@ const {
 dotenv.config();
 
 connectDB();
-
 const app = express();
 app.use(
   cors({
@@ -67,12 +66,8 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/v1/compare", compareRoutes);
 app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
-<<<<<<< HEAD
-app.use("/api/v1/click", clickCompleteRoutes)
-=======
 app.use("/api/v1/click", clickCompleteRoutes);
 app.use('/api/v1', pdfGenerateRoute)
->>>>>>> origin/asilbek
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
