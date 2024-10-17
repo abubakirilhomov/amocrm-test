@@ -5,6 +5,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const authMiddleware = require('./middlware/auth');
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware")
+const pdfGenerateRoute = require('./routes/pdfGenerateRoute')
 
 const {
   clickCompleteRoutes,
@@ -35,7 +36,7 @@ app.use(
       "https://forum.norbekovgroup.uz",
       "http://174.138.43.233:3000",
       "http://174.138.43.233:3001",
-      
+
       // Banks
       "https://test.paycom.uz",
       "https://217.29.119.130",
@@ -47,7 +48,7 @@ app.use(
       // Test
       "http://localhost:3000",
       "http://localhost:3001",
-      "https://norbekovgroup.vercel.app",
+      "https://norbekovgroup.vercel.app", 
     ],
     methods: "GET, POST, PUT, DELETE, PATCH",
     allowedHeaders: "Content-Type, Authorization",
@@ -66,7 +67,12 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/v1/compare", compareRoutes);
 app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
+<<<<<<< HEAD
+app.use("/api/v1/click", clickCompleteRoutes)
+=======
 app.use("/api/v1/click", clickCompleteRoutes);
+app.use('/api/v1', pdfGenerateRoute)
+>>>>>>> origin/asilbek
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
