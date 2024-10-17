@@ -32,7 +32,7 @@ exports.preparePayment = async (req, res) => {
             amount: amount,
             course_id: merchant_trans_id,
             status: 'ВЫСТАВЛЕНО',
-            system: 'Click'
+            paymentType: 'Click'
         });
 
         console.log('New order to be saved:', newOrder);
