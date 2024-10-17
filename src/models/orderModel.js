@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   transactionId: {
     type: String,
-    unique: true,
-    required: true
+    required: false
   },
   invoiceNumber: {
     type: String,
@@ -12,7 +11,7 @@ const orderSchema = new mongoose.Schema({
   },
   create_time: {
     type: Number,
-    required: true
+    required: false
   },
   perform_time: {
     type: Number
@@ -26,12 +25,16 @@ const orderSchema = new mongoose.Schema({
   },
   amount: {
     type: Number,
-    required: true
+    required: false
   },
   course_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course',
-    required: true
+    required: false
+  },
+  courseTitle: {
+    type: String,
+    required: false
   },
   clientName: {
     type: String,
@@ -42,6 +45,14 @@ const orderSchema = new mongoose.Schema({
     required: false
   },
   clientAddress: {
+    type: String,
+    required: false
+  },
+  tgUsername: {
+    type: String,
+    required: false
+  },
+  passport: {
     type: String,
     required: false
   },
