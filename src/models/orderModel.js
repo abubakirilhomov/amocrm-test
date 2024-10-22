@@ -10,17 +10,18 @@ const orderSchema = new mongoose.Schema({
     required: false
   },
   create_time: {
-    type: Number,
+    type: Date,  // Changed to Date
     required: false
   },
   perform_time: {
-    type: Number
+    type: Date  // Changed to Date
   },
   cancel_time: {
-    type: Number
+    type: Date  // Changed to Date
   },
   state: {
-    type: Number,
+    type: String,  // Changed to String for states like "Paid", "Pending"
+    enum: ['Paid', 'Pending', 'Cancelled'],  // Assuming possible values for state
     required: false
   },
   amount: {
@@ -57,7 +58,8 @@ const orderSchema = new mongoose.Schema({
     required: false
   },
   reason: {
-    type: Number
+    type: String,  // Changed to String
+    required: false
   },
   status: {
     type: String,
