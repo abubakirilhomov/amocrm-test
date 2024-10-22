@@ -1,4 +1,4 @@
-const amocrmService = require('../services/amocrmService');
+const amocrmService = require('../services/amocrmServices');
 
 exports.handleAmoCrmCallback = async (req, res) => {
   const code = req.query.code;

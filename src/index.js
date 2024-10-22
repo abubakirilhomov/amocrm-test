@@ -9,7 +9,6 @@ const amocrmAuthRoutes = require("./routes/amocrmAuthRoutes")
 const authMiddleware = require('./middlware/auth');
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware");
 const pdfGenerateRoute = require('./routes/pdfGenerateRoute');
-const leadRoutes = require('./routes/LeadRoutes');
 const {
   clickCompleteRoutes,
   clickPrepRoutes,
@@ -74,7 +73,6 @@ app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes);
 app.use("/api/v1", pdfGenerateRoute);
-app.use("/api/v1", leadRoutes);
 app.use("/api/v1", amocrmAuthRoutes)
 
 // Create Lead in amoCRM Route
