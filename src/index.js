@@ -4,8 +4,8 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const axios = require("axios");
+const amocrmAuthRoutes = require("./routes/amocrmAuthRoutes")
 
-// Import Middleware and Routes
 const authMiddleware = require('./middlware/auth');
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware");
 const pdfGenerateRoute = require('./routes/pdfGenerateRoute');
@@ -75,6 +75,7 @@ app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes);
 app.use("/api/v1", pdfGenerateRoute);
 app.use("/api/v1", leadRoutes);
+app.use("/api/v1", amocrmAuthRoutes)
 
 // Create Lead in amoCRM Route
 app.post('/create-lead', async (req, res) => {
