@@ -1,40 +1,106 @@
 const axios = require('axios');
-require('dotenv').config();
 
-const amocrmService = {
-  // Получение access_token с помощью кода авторизации
-  getAccessToken: async (code) => {
+// Найти сделку по телефону
+const findDealByPhone = async (phone, accessToken) => {
+  try {
+    const response = await axios.get(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/api/v4/leads`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`, 
+        'Content-Type': 'application/json'
+      },
+      params: {
+        query: phone
+      }
+    });
+
+    console.log('Результат поиска сделок:', JSON.stringify(response.data, null, 2));
+
+    return response.data._embedded ? response.data._embedded.leads : [];
+  } catch (error) {
+    console.error('Error searching for deal:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to search for deal by phone');
+  }
+};  
+
+// Обновить сделку
+const updateDeal = async (dealId, dealData, accessToken) => {
+  try {
+    const response = await axios.patch(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/api/v4/leads/${dealId}`, dealData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating deal:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to update deal');
+  }
+};
+
+// Создать новую сделку
+const createDeal = async (dealData, accessToken) => {
+  try {
+    console.log('Создание сделки с данными:', dealData);
+
+    const response = await axios.post(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/api/v4/leads`, dealData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating deal:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to create deal');
+  }
+};
+
+// Получить access token по authorization code
+const getAccessToken = async (code) => {
     try {
       const response = await axios.post(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/oauth2/access_token`, {
-        client_id: process.env.AMOCRM_CLIENT_ID,
-        client_secret: process.env.AMOCRM_CLIENT_SECRET,
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: process.env.AMOCRM_REDIRECT_URI,
+        "client_id": process.env.AMOCRM_CLIENT_ID,
+        "client_secret": process.env.AMOCRM_CLIENT_SECRET,
+        "grant_type": 'authorization_code',
+        "code": code,
+        "redirect_uri": process.env.AMOCRM_REDIRECT_URI
       });
-      return response.data;
+  
+      console.log('Token data:', response.data);
+  
+      return response.data; 
     } catch (error) {
       console.error('Error getting access token:', error.response ? error.response.data : error.message);
       throw new Error('Failed to get access token');
     }
-  },
+  };  
 
-  // Обновление access_token
-  refreshToken: async (refreshToken) => {
-    try {
-      const response = await axios.post(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/oauth2/access_token`, {
-        client_id: process.env.AMOCRM_CLIENT_ID,
-        client_secret: process.env.AMOCRM_CLIENT_SECRET,
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        redirect_uri: process.env.AMOCRM_REDIRECT_URI,
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error refreshing token:', error.response ? error.response.data : error.message);
-      throw new Error('Failed to refresh token');
-    }
-  },
+// Обновить access token по refresh token
+const refreshAccessToken = async (refreshToken) => {
+  try {
+    const response = await axios.post(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/oauth2/access_token`, {
+      client_id: process.env.AMOCRM_CLIENT_ID,
+      client_secret: process.env.AMOCRM_CLIENT_SECRET,
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      redirect_uri: process.env.AMOCRM_REDIRECT_URI
+    });
+
+    console.log('New Token data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error refreshing access token:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to refresh access token');
+  }
 };
 
-module.exports = amocrmService;
+module.exports = {
+  refreshAccessToken,
+  getAccessToken,
+  findDealByPhone,
+  updateDeal,
+  createDeal
+};
