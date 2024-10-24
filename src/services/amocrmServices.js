@@ -58,6 +58,60 @@ const createDeal = async (dealData, accessToken) => {
   }
 };
 
+// Найти контакт по телефону
+const findContactByPhone = async (phone, accessToken) => {
+  try {
+    const response = await axios.get(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/api/v4/contacts`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`, 
+        'Content-Type': 'application/json'
+      },
+      params: {
+        query: phone
+      }
+    });
+
+    return response.data._embedded ? response.data._embedded.contacts : [];
+  } catch (error) {
+    console.error('Error searching for contact:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to search for contact by phone');
+  }
+};
+
+// Обновить контакт
+const updateContact = async (contactId, contactData, accessToken) => {
+  try {
+    const response = await axios.patch(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/api/v4/contacts/${contactId}`, contactData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating contact:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to update contact');
+  }
+};
+
+// Создать контакт
+const createContact = async (contactData, accessToken) => {
+  try {
+    const response = await axios.post(`https://${process.env.AMOCRM_SUBDOMAIN}.amocrm.ru/api/v4/contacts`, contactData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating contact:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to create contact');
+  }
+};
+
 // Получить access token по authorization code
 const getAccessToken = async (code) => {
     try {
@@ -68,15 +122,14 @@ const getAccessToken = async (code) => {
         "code": code,
         "redirect_uri": process.env.AMOCRM_REDIRECT_URI
       });
-  
+      console.log("code", code)
       console.log('Token data:', response.data);
-  
       return response.data; 
     } catch (error) {
       console.error('Error getting access token:', error.response ? error.response.data : error.message);
       throw new Error('Failed to get access token');
     }
-  };  
+};
 
 // Обновить access token по refresh token
 const refreshAccessToken = async (refreshToken) => {
@@ -101,6 +154,9 @@ module.exports = {
   refreshAccessToken,
   getAccessToken,
   findDealByPhone,
+  findContactByPhone,
+  updateContact,
+  createContact,
   updateDeal,
   createDeal
 };
